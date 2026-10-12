@@ -1,0 +1,16 @@
+## .NET Core / C# gitignore
+bin/
+obj/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+.vs/
+.idea/
+.vscode/
+*.DotSettings.user
+*.nupkg
+*.snupkg
+[Tt]emp/
+[Ll]og/
+[Ll]ogs/

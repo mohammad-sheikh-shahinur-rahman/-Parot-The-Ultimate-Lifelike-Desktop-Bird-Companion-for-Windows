@@ -1,0 +1,179 @@
+<UserControl x:Class="Parot.Controls.SpeechBubbleControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             MaxWidth="260" MinWidth="150"
+             Opacity="0"
+             Visibility="Collapsed">
+    <UserControl.Resources>
+        <Storyboard x:Key="ShowStoryboard">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                             From="0" To="1" Duration="0:0:0.25" />
+            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                             From="15" To="0" Duration="0:0:0.25">
+                <DoubleAnimation.EasingFunction>
+                    <BackEase Amplitude="0.3" EasingMode="EaseOut" />
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
+        <Storyboard x:Key="HideStoryboard">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                             From="1" To="0" Duration="0:0:0.2" />
+            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                             From="0" To="10" Duration="0:0:0.2" />
+        </Storyboard>
+    </UserControl.Resources>
+    
+    <UserControl.RenderTransform>
+        <TranslateTransform Y="0" />
+    </UserControl.RenderTransform>
+
+    <Grid Margin="5,0,5,12">
+        <!-- Main Bubble Box -->
+        <Border Background="#FFFFFFFF"
+                BorderBrush="#10B981"
+                BorderThickness="1.5"
+                CornerRadius="14"
+                Padding="12,10,12,10">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="12"
+                                  Color="#1E293B"
+                                  Opacity="0.18"
+                                  ShadowDepth="4"
+                                  Direction="270"/>
+            </Border.Effect>
+
+            <StackPanel>
+                <!-- Header with Icon & Close -->
+                <Grid Margin="0,0,0,4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock x:Name="TxtIcon"
+                               Text="🦜"
+                               FontSize="14"
+                               Margin="0,0,6,0"
+                               VerticalAlignment="Center"/>
+
+                    <TextBlock x:Name="TxtTitle"
+                               Grid.Column="1"
+                               Text="Parot"
+                               FontWeight="Bold"
+                               FontSize="11"
+                               Foreground="#059669"
+                               VerticalAlignment="Center"/>
+
+                    <Button Grid.Column="2"
+                            x:Name="BtnClose"
+                            Content="✕"
+                            FontSize="10"
+                            Foreground="#94A3B8"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            Padding="2,0,2,0"
+                            Click="BtnClose_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Foreground" Value="#EF4444"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </Grid>
+
+                <!-- Message Text -->
+                <TextBlock x:Name="TxtMessage"
+                           Text="কিচিরমিচির! আজ দিনটা কেমন যাচ্ছে?"
+                           FontFamily="Segoe UI, Vrinda, Nirmala UI, sans-serif"
+                           FontSize="12"
+                           Foreground="#1E293B"
+                           TextWrapping="Wrap"
+                           LineHeight="16"
+                           Margin="0,2,0,6"/>
+
+                <!-- Action Buttons (Shown for Reminders) -->
+                <StackPanel x:Name="ActionPanel"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            Margin="0,4,0,0"
+                            Visibility="Collapsed">
+                    <Button x:Name="BtnSnooze"
+                            Content="⏳ ৫ মিনিট (Snooze)"
+                            FontSize="10"
+                            Foreground="#475569"
+                            Background="#F1F5F9"
+                            BorderBrush="#CBD5E1"
+                            BorderThickness="1"
+                            Padding="8,4"
+                            Margin="0,0,6,0"
+                            Cursor="Hand"
+                            Click="BtnSnooze_Click">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="6"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+
+                    <Button x:Name="BtnDone"
+                            Content="✓ সম্পন্ন (Done)"
+                            FontSize="10"
+                            FontWeight="SemiBold"
+                            Foreground="#FFFFFF"
+                            Background="#10B981"
+                            BorderThickness="0"
+                            Padding="8,4"
+                            Cursor="Hand"
+                            Click="BtnDone_Click">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="6"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Tail pointing down towards the parrot -->
+        <Path HorizontalAlignment="Left"
+              VerticalAlignment="Bottom"
+              Margin="30,0,0,-8"
+              Data="M 0,0 L 8,9 L 16,0 Z"
+              Fill="#FFFFFFFF"
+              Stroke="#10B981"
+              StrokeThickness="1.5">
+            <Path.Effect>
+                <DropShadowEffect BlurRadius="4"
+                                  Color="#1E293B"
+                                  Opacity="0.1"
+                                  ShadowDepth="2"
+                                  Direction="270"/>
+            </Path.Effect>
+        </Path>
+        <!-- Overlay small white patch to cover the border join -->
+        <Rectangle HorizontalAlignment="Left"
+                   VerticalAlignment="Bottom"
+                   Margin="31,0,0,0"
+                   Width="14" Height="3"
+                   Fill="#FFFFFFFF"/>
+    </Grid>
+</UserControl>

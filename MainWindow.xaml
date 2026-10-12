@@ -1,0 +1,60 @@
+<Window x:Class="Parot.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:controls="clr-namespace:Parot.Controls"
+        mc:Ignorable="d"
+        Title="Parot"
+        Width="300" Height="270"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ResizeMode="NoResize"
+        Loaded="Window_Loaded"
+        Closing="Window_Closing">
+
+    <Window.ContextMenu>
+        <ContextMenu x:Name="PetContextMenu" FontSize="12">
+            <MenuItem Header="💬 কথা বলো (Squawk!)" Click="MenuSquawk_Click"/>
+            <MenuItem Header="🌶️ ঝাল লঙ্কা খাওয়াও (Feed Chili)" Click="MenuFeedChili_Click"/>
+            <MenuItem Header="🌻 সূর্যমুখী বীজ খাওয়াও (Feed Seeds)" Click="MenuFeedSeeds_Click"/>
+            <Separator/>
+            <MenuItem x:Name="MenuSleepWake" Header="💤 ঘুমাতে যাও (Go to Sleep)" Click="MenuSleepWake_Click"/>
+            <MenuItem Header="👁️ চোখের বিশ্রাম (20-20-20 Break)" Click="MenuEyeBreak_Click"/>
+            <MenuItem Header="💧 পানি খাওয়ার রিমাইন্ডার (Hydrate)" Click="MenuHydrate_Click"/>
+            <Separator/>
+            <MenuItem Header="👻 Ghost Mode (Click-Through)" Click="MenuGhostMode_Click"/>
+            <MenuItem Header="⚙️ সেটিংস (Settings...)" Click="MenuSettings_Click"/>
+            <Separator/>
+            <MenuItem Header="❌ বন্ধ করুন (Exit Parot)" Click="MenuExit_Click"/>
+        </ContextMenu>
+    </Window.ContextMenu>
+
+    <Grid x:Name="MainCanvas" ClipToBounds="False">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Floating Speech / Reminder Bubble -->
+        <controls:SpeechBubbleControl x:Name="SpeechBubble"
+                                      Grid.Row="0"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Top"
+                                      Margin="0,0,0,0"/>
+
+        <!-- Animated Parot Pet Character -->
+        <controls:ParotPetControl x:Name="Pet"
+                                  Grid.Row="1"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Bottom"
+                                  Cursor="Hand"
+                                  MouseLeftButtonDown="Pet_MouseLeftButtonDown"
+                                  MouseLeftButtonUp="Pet_MouseLeftButtonUp"
+                                  MouseRightButtonUp="Pet_MouseRightButtonUp"
+                                  MouseMove="Pet_MouseMove"/>
+    </Grid>
+</Window>
