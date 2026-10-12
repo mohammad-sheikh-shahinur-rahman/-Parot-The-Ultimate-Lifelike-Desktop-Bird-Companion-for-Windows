@@ -4,27 +4,27 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             Width="140" Height="140">
+             Width="160" Height="220">
     <UserControl.Resources>
         <!-- Breathing / Idle Animation -->
         <Storyboard x:Key="BreatheStoryboard" RepeatBehavior="Forever" AutoReverse="True">
             <DoubleAnimation Storyboard.TargetName="BodyScaleTransform"
                              Storyboard.TargetProperty="ScaleY"
-                             From="1.0" To="1.04" Duration="0:0:1.8">
+                             From="1.0" To="1.03" Duration="0:0:2.0">
                 <DoubleAnimation.EasingFunction>
                     <SineEase EasingMode="EaseInOut"/>
                 </DoubleAnimation.EasingFunction>
             </DoubleAnimation>
             <DoubleAnimation Storyboard.TargetName="HeadTranslateTransform"
                              Storyboard.TargetProperty="Y"
-                             From="0" To="1.5" Duration="0:0:1.8">
+                             From="0" To="1.5" Duration="0:0:2.0">
                 <DoubleAnimation.EasingFunction>
                     <SineEase EasingMode="EaseInOut"/>
                 </DoubleAnimation.EasingFunction>
             </DoubleAnimation>
             <DoubleAnimation Storyboard.TargetName="TailRotateTransform"
                              Storyboard.TargetProperty="Angle"
-                             From="-4" To="4" Duration="0:0:2.4">
+                             From="-3" To="3" Duration="0:0:2.6">
                 <DoubleAnimation.EasingFunction>
                     <SineEase EasingMode="EaseInOut"/>
                 </DoubleAnimation.EasingFunction>
@@ -35,28 +35,28 @@
         <Storyboard x:Key="FlapStoryboard" RepeatBehavior="Forever">
             <DoubleAnimation Storyboard.TargetName="RightWingRotate"
                              Storyboard.TargetProperty="Angle"
-                             From="-10" To="45" Duration="0:0:0.1" AutoReverse="True"/>
+                             From="-5" To="42" Duration="0:0:0.12" AutoReverse="True"/>
             <DoubleAnimation Storyboard.TargetName="LeftWingRotate"
                              Storyboard.TargetProperty="Angle"
-                             From="10" To="-45" Duration="0:0:0.1" AutoReverse="True"/>
+                             From="5" To="-42" Duration="0:0:0.12" AutoReverse="True"/>
             <DoubleAnimation Storyboard.TargetName="BodyTranslateTransform"
                              Storyboard.TargetProperty="Y"
-                             From="0" To="-6" Duration="0:0:0.1" AutoReverse="True"/>
+                             From="0" To="-8" Duration="0:0:0.12" AutoReverse="True"/>
         </Storyboard>
 
         <!-- Hop Storyboard -->
         <Storyboard x:Key="HopStoryboard">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootTranslateTransform"
                                            Storyboard.TargetProperty="Y">
-                <SplineDoubleKeyFrame KeyTime="0:0:0.15" Value="-20"/>
-                <SplineDoubleKeyFrame KeyTime="0:0:0.3" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.15" Value="-22"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.32" Value="0"/>
             </DoubleAnimationUsingKeyFrames>
             <DoubleAnimationUsingKeyFrames Storyboard.TargetName="BodyScaleTransform"
                                            Storyboard.TargetProperty="ScaleY">
-                <SplineDoubleKeyFrame KeyTime="0:0:0.08" Value="0.9"/>
-                <SplineDoubleKeyFrame KeyTime="0:0:0.15" Value="1.1"/>
-                <SplineDoubleKeyFrame KeyTime="0:0:0.3" Value="0.88"/>
-                <SplineDoubleKeyFrame KeyTime="0:0:0.4" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.08" Value="0.92"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.15" Value="1.08"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.32" Value="0.94"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.42" Value="1.0"/>
             </DoubleAnimationUsingKeyFrames>
         </Storyboard>
 
@@ -64,28 +64,28 @@
         <Storyboard x:Key="HeadTiltStoryboard">
             <DoubleAnimation Storyboard.TargetName="HeadRotateTransform"
                              Storyboard.TargetProperty="Angle"
-                             To="14" Duration="0:0:0.25" AutoReverse="True"/>
+                             To="16" Duration="0:0:0.25" AutoReverse="True"/>
         </Storyboard>
 
-        <!-- Beak Chirp/Talk Storyboard -->
+        <!-- Beak Vocalization Storyboard -->
         <Storyboard x:Key="ChirpStoryboard" RepeatBehavior="3x" AutoReverse="True">
             <DoubleAnimation Storyboard.TargetName="LowerBeakRotate"
                              Storyboard.TargetProperty="Angle"
-                             From="0" To="20" Duration="0:0:0.08"/>
+                             From="0" To="24" Duration="0:0:0.09"/>
         </Storyboard>
 
-        <!-- Beat Sync Dancing / Headbanging Storyboard -->
+        <!-- Beat Sync Dancing Storyboard -->
         <Storyboard x:Key="DanceStoryboard" RepeatBehavior="Forever">
             <DoubleAnimation Storyboard.TargetName="HeadRotateTransform"
                              Storyboard.TargetProperty="Angle"
-                             From="-15" To="15" Duration="0:0:0.22" AutoReverse="True">
+                             From="-14" To="14" Duration="0:0:0.22" AutoReverse="True">
                 <DoubleAnimation.EasingFunction>
                     <SineEase EasingMode="EaseInOut"/>
                 </DoubleAnimation.EasingFunction>
             </DoubleAnimation>
             <DoubleAnimation Storyboard.TargetName="BodyTranslateTransform"
                              Storyboard.TargetProperty="Y"
-                             From="0" To="-8" Duration="0:0:0.22" AutoReverse="True">
+                             From="0" To="-10" Duration="0:0:0.22" AutoReverse="True">
                 <DoubleAnimation.EasingFunction>
                     <BounceEase Bounces="1" Bounciness="2" EasingMode="EaseOut"/>
                 </DoubleAnimation.EasingFunction>
@@ -99,32 +99,20 @@
         </Storyboard>
     </UserControl.Resources>
 
-    <Grid x:Name="RootGrid" Width="140" Height="140" ClipToBounds="False">
+    <Grid x:Name="RootGrid" Width="160" Height="220" ClipToBounds="False">
         <Grid.RenderTransform>
             <TransformGroup>
-                <ScaleTransform x:Name="RootScaleTransform" ScaleX="1" ScaleY="1" CenterX="70" CenterY="70"/>
+                <ScaleTransform x:Name="RootScaleTransform" ScaleX="1" ScaleY="1" CenterX="80" CenterY="110"/>
                 <TranslateTransform x:Name="RootTranslateTransform" X="0" Y="0"/>
             </TransformGroup>
         </Grid.RenderTransform>
 
-        <!-- Shadow under Parot -->
-        <Ellipse x:Name="GroundShadow"
-                 Width="60" Height="12"
-                 Fill="#20000000"
-                 VerticalAlignment="Bottom"
-                 HorizontalAlignment="Center"
-                 Margin="0,0,0,10">
-            <Ellipse.Effect>
-                <BlurEffect Radius="6"/>
-            </Ellipse.Effect>
-        </Ellipse>
-
-        <!-- Animated Particles Layer -->
+        <!-- Particles Layer -->
         <Canvas x:Name="ParticleCanvas" ClipToBounds="False">
             <!-- Heart Particle -->
             <TextBlock x:Name="HeartParticle"
-                       Text="❤️" FontSize="18"
-                       Canvas.Left="75" Canvas.Top="35"
+                       Text="❤️" FontSize="20"
+                       Canvas.Left="95" Canvas.Top="25"
                        Opacity="0">
                 <TextBlock.RenderTransform>
                     <TranslateTransform x:Name="HeartTranslate" Y="0"/>
@@ -133,8 +121,8 @@
 
             <!-- Music Note Particle -->
             <TextBlock x:Name="NoteParticle"
-                       Text="🎵" FontSize="16"
-                       Canvas.Left="85" Canvas.Top="45"
+                       Text="🎵" FontSize="18"
+                       Canvas.Left="105" Canvas.Top="35"
                        Opacity="0">
                 <TextBlock.RenderTransform>
                     <TranslateTransform x:Name="NoteTranslate" Y="0"/>
@@ -143,17 +131,17 @@
 
             <!-- Sleep Zzz Particles -->
             <StackPanel x:Name="SleepParticles"
-                        Canvas.Left="82" Canvas.Top="20"
+                        Canvas.Left="100" Canvas.Top="15"
                         Opacity="0">
-                <TextBlock Text="Z" FontSize="15" FontWeight="Bold" Foreground="#3B82F6"/>
-                <TextBlock Text="z" FontSize="12" FontWeight="Bold" Foreground="#60A5FA" Margin="6,-4,0,0"/>
+                <TextBlock Text="Z" FontSize="16" FontWeight="Bold" Foreground="#3B82F6"/>
+                <TextBlock Text="z" FontSize="13" FontWeight="Bold" Foreground="#60A5FA" Margin="6,-4,0,0"/>
                 <TextBlock Text="z" FontSize="10" FontWeight="Bold" Foreground="#93C5FD" Margin="12,-4,0,0"/>
             </StackPanel>
 
             <!-- Treat Food Item (Chili Pepper) -->
             <TextBlock x:Name="TreatItem"
-                       Text="🌶️" FontSize="20"
-                       Canvas.Left="75" Canvas.Top="20"
+                       Text="🌶️" FontSize="22"
+                       Canvas.Left="90" Canvas.Top="25"
                        Opacity="0">
                 <TextBlock.RenderTransform>
                     <TranslateTransform x:Name="TreatTranslate" Y="0"/>
@@ -161,303 +149,364 @@
             </TextBlock>
         </Canvas>
 
+        <!-- NATURAL WOODEN TREE PERCH BRANCH (At bottom where claws grip) -->
+        <Canvas Width="160" Height="220" IsHitTestVisible="False">
+            <!-- Branch Shadow -->
+            <Path Data="M 10,178 Q 80,183 150,175 L 150,188 Q 80,195 10,188 Z"
+                  Fill="#25000000">
+                <Path.Effect>
+                    <BlurEffect Radius="4"/>
+                </Path.Effect>
+            </Path>
+
+            <!-- Natural Tree Branch with textured bark gradient -->
+            <Path Data="M 8,172 C 45,174 95,173 152,168 L 150,184 C 95,188 45,188 8,184 Z">
+                <Path.Fill>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#854D0E" Offset="0"/>
+                        <GradientStop Color="#713F12" Offset="0.3"/>
+                        <GradientStop Color="#451A03" Offset="0.8"/>
+                        <GradientStop Color="#291102" Offset="1"/>
+                    </LinearGradientBrush>
+                </Path.Fill>
+            </Path>
+            <!-- Branch Bark Texture Highlights -->
+            <Path Data="M 12,174 Q 60,176 110,172" Stroke="#A16207" StrokeThickness="1.5" Opacity="0.7"/>
+            <Path Data="M 30,178 Q 85,180 145,175" Stroke="#3B1C05" StrokeThickness="1.5" Opacity="0.8"/>
+        </Canvas>
+
         <!-- Bird Hierarchy Container -->
-        <Grid x:Name="BirdContainer" Margin="0,5,0,5">
+        <Grid x:Name="BirdContainer" Margin="0,0,0,0">
             <Grid.RenderTransform>
                 <TransformGroup>
                     <TranslateTransform x:Name="BodyTranslateTransform" X="0" Y="0"/>
                 </TransformGroup>
             </Grid.RenderTransform>
 
-            <!-- 1. Tail Feathers (behind body) -->
-            <Canvas Width="140" Height="140" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Path x:Name="TailFeatherPath"
-                      Data="M 40,82 C 25,95 10,118 6,132 C 16,128 35,110 52,94 Z"
-                      HorizontalAlignment="Left" VerticalAlignment="Top">
+            <!-- 1. MAGNIFICENT LONG SCARLET MACAW TAIL (Behind Perch & Body) -->
+            <Canvas Width="160" Height="220" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Canvas.RenderTransform>
+                    <RotateTransform x:Name="TailRotateTransform" Angle="0" CenterX="62" CenterY="130"/>
+                </Canvas.RenderTransform>
+
+                <!-- Outer Blue Tail Feather (Left) -->
+                <Path x:Name="TailOuterBlueLeft"
+                      Data="M 52,130 C 44,155 35,185 30,214 C 36,212 48,175 58,142 Z">
                     <Path.Fill>
-                        <LinearGradientBrush x:Name="TailBrush" StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#059669" Offset="0"/>
-                            <GradientStop Color="#0D9488" Offset="0.6"/>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#1D4ED8" Offset="0"/>
+                            <GradientStop Color="#2563EB" Offset="0.5"/>
                             <GradientStop Color="#0284C7" Offset="1"/>
                         </LinearGradientBrush>
                     </Path.Fill>
-                    <Path.RenderTransform>
-                        <RotateTransform x:Name="TailRotateTransform" Angle="0" CenterX="50" CenterY="85"/>
-                    </Path.RenderTransform>
+                </Path>
+
+                <!-- Outer Blue Tail Feather (Right) -->
+                <Path x:Name="TailOuterBlueRight"
+                      Data="M 68,132 C 65,160 62,192 60,218 C 65,214 74,178 74,142 Z">
+                    <Path.Fill>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#1D4ED8" Offset="0"/>
+                            <GradientStop Color="#2563EB" Offset="0.6"/>
+                            <GradientStop Color="#0369A1" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Path.Fill>
+                </Path>
+
+                <!-- Main Long Scarlet Red Central Feathers -->
+                <Path x:Name="TailFeatherPath"
+                      Data="M 54,128 C 50,158 44,195 40,228 C 45,228 58,185 64,138 Z">
+                    <Path.Fill>
+                        <LinearGradientBrush x:Name="TailBrush" StartPoint="0.2,0" EndPoint="0.8,1">
+                            <GradientStop Color="#EF4444" Offset="0"/>
+                            <GradientStop Color="#DC2626" Offset="0.3"/>
+                            <GradientStop Color="#B91C1C" Offset="0.75"/>
+                            <GradientStop Color="#7F1D1D" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Path.Fill>
                 </Path>
             </Canvas>
 
             <!-- 2. Left / Back Wing -->
             <Path x:Name="LeftWing"
-                  Data="M 38,64 C 28,68 22,82 25,94 C 29,102 36,98 44,88 Z"
-                  Fill="#15803D">
+                  Data="M 40,78 C 30,86 24,108 28,128 C 34,138 44,132 52,118 Z"
+                  Fill="#B91C1C">
                 <Path.RenderTransform>
-                    <RotateTransform x:Name="LeftWingRotate" Angle="0" CenterX="44" CenterY="70"/>
+                    <RotateTransform x:Name="LeftWingRotate" Angle="0" CenterX="48" CenterY="85"/>
                 </Path.RenderTransform>
             </Path>
 
-            <!-- 3. Talons / Feet -->
-            <Canvas x:Name="FeetCanvas" Width="140" Height="140">
-                <!-- Left Foot -->
-                <Path x:Name="LeftFoot"
-                      Data="M 52,112 L 48,122 M 52,112 L 53,123 M 52,112 L 57,121"
-                      Stroke="#EA580C" StrokeThickness="3" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                <!-- Right Foot -->
-                <Path x:Name="RightFoot"
-                      Data="M 72,112 L 68,122 M 72,112 L 73,123 M 72,112 L 78,121"
-                      Stroke="#EA580C" StrokeThickness="3" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-            </Canvas>
-
-            <!-- 4. Main Body -->
+            <!-- 3. Main Scarlet Body & Breast -->
             <Grid x:Name="BodyPart" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Grid.RenderTransform>
                     <TransformGroup>
-                        <ScaleTransform x:Name="BodyScaleTransform" ScaleX="1" ScaleY="1" CenterX="62" CenterY="85"/>
+                        <ScaleTransform x:Name="BodyScaleTransform" ScaleX="1" ScaleY="1" CenterX="66" CenterY="110"/>
                     </TransformGroup>
                 </Grid.RenderTransform>
 
-                <!-- Plump Body Ellipse -->
+                <!-- Scarlet Body Silhouette -->
                 <Path x:Name="BodyMainPath"
-                      Data="M 38,62 C 38,48 55,42 66,42 C 84,42 96,56 94,80 C 92,100 78,114 62,114 C 46,114 38,98 38,80 Z">
+                      Data="M 42,76 C 42,54 62,46 76,46 C 96,46 108,62 105,94 C 102,122 88,144 68,144 C 50,144 42,122 42,98 Z">
                     <Path.Fill>
                         <LinearGradientBrush x:Name="BodyBrush" StartPoint="0.2,0" EndPoint="0.8,1">
-                            <GradientStop Color="#4ADE80" Offset="0"/>
-                            <GradientStop Color="#22C55E" Offset="0.35"/>
-                            <GradientStop Color="#16A34A" Offset="0.75"/>
-                            <GradientStop Color="#15803D" Offset="1"/>
+                            <GradientStop Color="#F87171" Offset="0"/>
+                            <GradientStop Color="#EF4444" Offset="0.25"/>
+                            <GradientStop Color="#DC2626" Offset="0.6"/>
+                            <GradientStop Color="#991B1B" Offset="1"/>
                         </LinearGradientBrush>
                     </Path.Fill>
                 </Path>
 
-                <!-- Fluffy Underbelly -->
+                <!-- Breast / Belly Layer Highlight -->
                 <Path x:Name="BellyPath"
-                      Data="M 58,68 C 68,68 84,74 84,90 C 84,102 74,112 62,112 C 55,112 50,105 52,92 C 54,80 55,70 58,68 Z">
+                      Data="M 64,82 C 78,82 96,90 94,112 C 92,128 80,140 68,140 C 58,140 52,130 55,114 C 58,98 60,84 64,82 Z">
                     <Path.Fill>
                         <RadialGradientBrush x:Name="BellyBrush" Center="0.6,0.6" RadiusX="0.6" RadiusY="0.6">
-                            <GradientStop Color="#BBF7D0" Offset="0"/>
-                            <GradientStop Color="#86EFAC" Offset="0.7"/>
-                            <GradientStop Color="#4ADE80" Offset="1"/>
+                            <GradientStop Color="#FCA5A5" Offset="0"/>
+                            <GradientStop Color="#EF4444" Offset="0.6"/>
+                            <GradientStop Color="#B91C1C" Offset="1"/>
                         </RadialGradientBrush>
                     </Path.Fill>
                 </Path>
             </Grid>
 
-            <!-- 5. Head and Face -->
-            <Canvas x:Name="HeadPart" Width="140" Height="140">
+            <!-- 4. Realistic Gripping Talons / Claws (Clamping Branch) -->
+            <Canvas x:Name="FeetCanvas" Width="160" Height="220" IsHitTestVisible="False">
+                <!-- Left Foot Gripping -->
+                <Path x:Name="LeftFoot"
+                      Data="M 52,156 L 50,172 C 48,176 45,178 42,176 M 54,156 L 55,174 C 55,178 57,178 59,175 M 56,156 L 62,172 C 64,176 67,175 66,172"
+                      Stroke="#334155" StrokeThickness="3.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                <!-- Claw Nails -->
+                <Path Data="M 42,176 L 40,180 M 59,175 L 61,180 M 66,172 L 69,176"
+                      Stroke="#0F172A" StrokeThickness="2" StrokeEndLineCap="Round"/>
+
+                <!-- Right Foot Gripping -->
+                <Path x:Name="RightFoot"
+                      Data="M 76,156 L 73,172 C 71,176 69,177 67,175 M 78,156 L 79,174 C 79,178 82,178 84,175 M 80,156 L 86,172 C 88,176 91,175 90,172"
+                      Stroke="#334155" StrokeThickness="3.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                <!-- Claw Nails -->
+                <Path Data="M 67,175 L 65,179 M 84,175 L 86,180 M 90,172 L 93,176"
+                      Stroke="#0F172A" StrokeThickness="2" StrokeEndLineCap="Round"/>
+            </Canvas>
+
+            <!-- 5. Head and Expressive Macaw Face -->
+            <Canvas x:Name="HeadPart" Width="160" Height="220">
                 <Canvas.RenderTransform>
                     <TransformGroup>
                         <TranslateTransform x:Name="HeadTranslateTransform" X="0" Y="0"/>
-                        <RotateTransform x:Name="HeadRotateTransform" Angle="0" CenterX="64" CenterY="52"/>
+                        <RotateTransform x:Name="HeadRotateTransform" Angle="0" CenterX="70" CenterY="55"/>
                     </TransformGroup>
                 </Canvas.RenderTransform>
 
-                <!-- Parakeet Crest on top -->
-                <Path x:Name="ParakeetCrest1"
-                      Data="M 58,26 C 52,18 42,16 38,18 C 45,23 50,30 54,34 Z"
-                      Fill="#15803D"/>
-                <Path x:Name="ParakeetCrest2"
-                      Data="M 64,28 C 62,16 54,12 50,14 C 56,19 60,25 62,31 Z"
-                      Fill="#22C55E"/>
-
-                <!-- Cockatiel Tall Feathery Plume Crest (Yellow) -->
-                <Path x:Name="CockatielCrest"
-                      Data="M 60,24 C 50,2 40,-8 32,-4 C 44,4 52,12 56,22 Z M 64,26 C 60,4 52,-6 46,-2 C 54,6 60,14 62,24 Z"
-                      Fill="#FACC15"
-                      Visibility="Collapsed"/>
-
-                <!-- Head Base -->
+                <!-- Scarlet Head Base -->
                 <Path x:Name="HeadBasePath"
-                      Data="M 44,48 C 44,32 56,24 72,24 C 88,24 98,34 98,50 C 98,62 88,70 72,70 C 54,70 44,62 44,48 Z">
+                      Data="M 46,52 C 46,30 62,20 80,20 C 100,20 112,32 110,54 C 110,70 98,80 78,80 C 58,80 46,70 46,52 Z">
                     <Path.Fill>
                         <LinearGradientBrush x:Name="HeadBrush" StartPoint="0.2,0" EndPoint="0.8,1">
-                            <GradientStop Color="#4ADE80" Offset="0"/>
-                            <GradientStop Color="#22C55E" Offset="0.4"/>
-                            <GradientStop Color="#16A34A" Offset="1"/>
+                            <GradientStop Color="#F87171" Offset="0"/>
+                            <GradientStop Color="#EF4444" Offset="0.35"/>
+                            <GradientStop Color="#DC2626" Offset="0.7"/>
+                            <GradientStop Color="#991B1B" Offset="1"/>
                         </LinearGradientBrush>
                     </Path.Fill>
                 </Path>
 
-                <!-- Rose-Ring Collar (Male Ringneck signature) -->
-                <Path x:Name="NeckRingRed"
-                      Data="M 52,65 C 60,70 76,70 86,63 C 86,66 74,73 52,68 Z"
-                      Fill="#E11D48"/>
-                <Path x:Name="NeckRingBlack"
-                      Data="M 54,64 C 62,68 76,68 84,62 C 84,64 74,70 54,66 Z"
-                      Fill="#0F172A" Opacity="0.85"/>
+                <!-- Cockatiel Crest Plume (Only shown when Cockatiel skin selected) -->
+                <Path x:Name="CockatielCrest"
+                      Data="M 66,22 C 54,-4 42,-14 34,-10 C 46,-2 56,8 62,20 Z M 72,24 C 68,-2 58,-12 50,-8 C 60,2 66,12 68,22 Z"
+                      Fill="#FACC15"
+                      Visibility="Collapsed"/>
 
-                <!-- Cheek Blush (Rosy circles) -->
+                <!-- REALISTIC WHITE MACAW BARE FACIAL SKIN PATCH -->
+                <Path x:Name="MacawFaceMask"
+                      Data="M 64,34 C 74,32 96,35 100,48 C 102,60 92,70 78,70 C 68,68 64,54 64,44 Z"
+                      Fill="#F8FAFC">
+                    <Path.Effect>
+                        <DropShadowEffect BlurRadius="2" ShadowDepth="1" Opacity="0.15" Direction="270"/>
+                    </Path.Effect>
+                </Path>
+
+                <!-- Delicate Feather Track Lines on White Skin (Classic Scarlet Macaw trait) -->
+                <Path x:Name="FaceStripes"
+                      Data="M 74,56 Q 84,57 94,52 M 76,61 Q 85,62 92,58 M 79,65 Q 86,66 91,63"
+                      Stroke="#DC2626" StrokeThickness="1.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Opacity="0.85"/>
+
+                <!-- Cheek Blush (For parakeet/cockatiel compatibility) -->
                 <Ellipse x:Name="CheekBlushLeft"
-                         Canvas.Left="52" Canvas.Top="48" Width="13" Height="9"
-                         Fill="#FB7185" Opacity="0.55">
-                    <Ellipse.Effect>
-                        <BlurEffect Radius="3"/>
-                    </Ellipse.Effect>
-                </Ellipse>
+                         Canvas.Left="56" Canvas.Top="52" Width="10" Height="8"
+                         Fill="#FB7185" Opacity="0" Visibility="Collapsed"/>
                 <Ellipse x:Name="CheekBlushRight"
-                         Canvas.Left="84" Canvas.Top="47" Width="12" Height="8"
-                         Fill="#FB7185" Opacity="0.45">
-                    <Ellipse.Effect>
-                        <BlurEffect Radius="3"/>
-                    </Ellipse.Effect>
-                </Ellipse>
+                         Canvas.Left="90" Canvas.Top="52" Width="10" Height="8"
+                         Fill="#FB7185" Opacity="0" Visibility="Collapsed"/>
 
-                <!-- EYES & EXPRESSIONS -->
-                <!-- Awake Eye -->
-                <Grid x:Name="AwakeEye" Canvas.Left="67" Canvas.Top="35" Width="20" Height="22">
-                    <Ellipse Width="19" Height="21" Fill="#FFFFFF" Stroke="#166534" StrokeThickness="1"/>
-                    
-                    <Grid x:Name="EyePupil" Width="14" Height="16" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <!-- REALISTIC MACAW EYE -->
+                <Grid x:Name="AwakeEye" Canvas.Left="72" Canvas.Top="38" Width="22" Height="22">
+                    <!-- Eye Socket Rim -->
+                    <Ellipse Width="21" Height="21" Fill="#E2E8F0" Stroke="#CBD5E1" StrokeThickness="1"/>
+
+                    <!-- Amber / Pale Gold Iris -->
+                    <Ellipse x:Name="EyeIris" Width="17" Height="17" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Ellipse.Fill>
+                            <RadialGradientBrush Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+                                <GradientStop Color="#FEF08A" Offset="0"/>
+                                <GradientStop Color="#FACC15" Offset="0.6"/>
+                                <GradientStop Color="#CA8A04" Offset="1"/>
+                            </RadialGradientBrush>
+                        </Ellipse.Fill>
+                    </Ellipse>
+
+                    <!-- Movable Pupil (Looks at mouse cursor) -->
+                    <Grid x:Name="EyePupil" Width="11" Height="11" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Grid.RenderTransform>
                             <TranslateTransform x:Name="PupilTranslate" X="0" Y="0"/>
                         </Grid.RenderTransform>
-                        
-                        <Ellipse Fill="#0F172A"/>
-                        <Ellipse Fill="#0369A1" Width="12" Height="14" Margin="0,0,1,1" Opacity="0.6"/>
 
-                        <Ellipse Width="5" Height="6" Fill="#FFFFFF"
+                        <!-- Dark Pupil -->
+                        <Ellipse Fill="#090D16"/>
+
+                        <!-- Primary Crisp Highlight -->
+                        <Ellipse Width="4" Height="4" Fill="#FFFFFF"
                                  HorizontalAlignment="Left" VerticalAlignment="Top"
-                                 Margin="2,2,0,0"/>
+                                 Margin="1.5,1.5,0,0"/>
 
-                        <Ellipse Width="2.5" Height="2.5" Fill="#FFFFFF"
+                        <!-- Secondary Soft Highlight -->
+                        <Ellipse Width="2" Height="2" Fill="#FFFFFF"
                                  HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                                 Margin="0,0,3,3"/>
+                                 Margin="0,0,2,2" Opacity="0.85"/>
                     </Grid>
 
+                    <!-- Eyelid for Blinking -->
                     <Rectangle x:Name="Eyelid"
-                               Fill="#22C55E"
+                               Fill="#DC2626"
                                Height="0"
                                VerticalAlignment="Top"
-                               Width="20"/>
+                               Width="22"/>
                 </Grid>
 
                 <!-- Happy Closed Eye (^ ^) -->
                 <Path x:Name="HappyEye"
-                      Data="M 68,46 C 73,38 78,38 85,46"
+                      Data="M 73,50 C 78,41 84,41 91,50"
                       Stroke="#0F172A" StrokeThickness="2.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
                       Visibility="Collapsed"/>
 
                 <!-- Sleeping Eye (──) -->
                 <Path x:Name="SleepEye"
-                      Data="M 68,47 L 85,47"
+                      Data="M 72,50 L 91,50"
                       Stroke="#1E293B" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
                       Visibility="Collapsed"/>
 
-                <!-- BEAK -->
+                <!-- REALISTIC POWERFUL HOOKED BEAK -->
+                <!-- Lower Beak (Charcoal Black) -->
                 <Path x:Name="LowerBeak"
-                      Data="M 87,54 L 98,56 L 89,61 Z"
-                      Fill="#C2410C">
+                      Data="M 92,60 L 105,62 L 95,70 Z"
+                      Fill="#0F172A">
                     <Path.RenderTransform>
-                        <RotateTransform x:Name="LowerBeakRotate" Angle="0" CenterX="87" CenterY="54"/>
+                        <RotateTransform x:Name="LowerBeakRotate" Angle="0" CenterX="92" CenterY="60"/>
                     </Path.RenderTransform>
                 </Path>
 
+                <!-- Upper Beak (Ivory / Horn Colored with sharp tip) -->
                 <Path x:Name="UpperBeak"
-                      Data="M 84,47 C 96,46 104,50 102,59 C 100,64 94,62 87,55 Z">
+                      Data="M 90,48 C 104,46 116,52 114,66 C 111,76 102,72 94,62 Z">
                     <Path.Fill>
-                        <LinearGradientBrush x:Name="BeakBrush" StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#F97316" Offset="0"/>
-                            <GradientStop Color="#EA580C" Offset="0.6"/>
-                            <GradientStop Color="#DC2626" Offset="1"/>
+                        <LinearGradientBrush x:Name="BeakBrush" StartPoint="0,0" EndPoint="0.8,1">
+                            <GradientStop Color="#FFFFFF" Offset="0"/>
+                            <GradientStop Color="#FEF3C7" Offset="0.3"/>
+                            <GradientStop Color="#FDE68A" Offset="0.75"/>
+                            <GradientStop Color="#D97706" Offset="1"/>
                         </LinearGradientBrush>
                     </Path.Fill>
                     <Path.Effect>
-                        <DropShadowEffect BlurRadius="3" Color="#000000" Opacity="0.15" ShadowDepth="1"/>
+                        <DropShadowEffect BlurRadius="4" Color="#000000" Opacity="0.25" ShadowDepth="1.5" Direction="300"/>
                     </Path.Effect>
                 </Path>
 
-                <!-- ACCESSORIES LAYER (Feature 5) -->
-                <!-- 1. Reading Glasses 👓 (Pomodoro / Focus) -->
+                <!-- ACCESSORIES LAYER -->
                 <Canvas x:Name="AccessoryGlasses" Visibility="Collapsed">
-                    <Ellipse Canvas.Left="63" Canvas.Top="34" Width="25" Height="24"
+                    <Ellipse Canvas.Left="68" Canvas.Top="36" Width="26" Height="25"
                              Stroke="#1E293B" StrokeThickness="2.5" Fill="#10FFFFFF"/>
-                    <!-- Bridge -->
-                    <Path Data="M 87,46 C 90,44 93,44 96,47"
-                          Stroke="#1E293B" StrokeThickness="2.5"/>
+                    <Path Data="M 93,48 C 96,46 100,46 103,49" Stroke="#1E293B" StrokeThickness="2.5"/>
                 </Canvas>
 
-                <!-- 2. Cool Sunglasses 🕶️ -->
                 <Canvas x:Name="AccessorySunglasses" Visibility="Collapsed">
-                    <Path Data="M 62,35 L 89,35 L 86,52 L 64,50 Z"
-                          Fill="#0F172A">
+                    <Path Data="M 68,36 L 98,36 L 94,56 L 70,54 Z" Fill="#0F172A">
                         <Path.Effect>
                             <DropShadowEffect BlurRadius="3" ShadowDepth="2" Opacity="0.3"/>
                         </Path.Effect>
                     </Path>
-                    <!-- White reflection shine -->
-                    <Line X1="66" Y1="38" X2="78" Y2="48" Stroke="#FFFFFF" StrokeThickness="1.5" Opacity="0.75"/>
+                    <Line X1="72" Y1="39" X2="85" Y2="52" Stroke="#FFFFFF" StrokeThickness="1.5" Opacity="0.75"/>
                 </Canvas>
 
-                <!-- 3. Winter Scarf 🧣 -->
                 <Canvas x:Name="AccessoryScarf" Visibility="Collapsed">
-                    <Path Data="M 48,60 C 58,66 84,66 92,58 C 94,64 88,72 70,74 C 54,74 46,66 48,60 Z"
-                          Fill="#DC2626"/>
-                    <!-- Scarf tails -->
-                    <Path Data="M 52,66 L 46,88 L 54,89 L 58,68 Z"
-                          Fill="#EF4444"/>
-                    <Path Data="M 58,68 L 54,84 L 62,85 L 64,70 Z"
-                          Fill="#DC2626"/>
+                    <Path Data="M 52,68 C 64,74 92,74 100,66 C 102,72 96,82 76,84 C 58,84 50,74 52,68 Z" Fill="#DC2626"/>
+                    <Path Data="M 56,76 L 50,98 L 60,99 L 64,78 Z" Fill="#EF4444"/>
                 </Canvas>
 
-                <!-- 4. Aristocratic Top Hat 🎩 -->
                 <Canvas x:Name="AccessoryTopHat" Visibility="Collapsed">
-                    <!-- Brim -->
-                    <Ellipse Canvas.Left="44" Canvas.Top="18" Width="44" Height="10" Fill="#0F172A"/>
-                    <!-- Cylinder -->
-                    <Rectangle Canvas.Left="52" Canvas.Top="0" Width="28" Height="22" Fill="#1E293B" RadiusX="2" RadiusY="2"/>
-                    <!-- Red ribbon -->
-                    <Rectangle Canvas.Left="52" Canvas.Top="16" Width="28" Height="4" Fill="#E11D48"/>
+                    <Ellipse Canvas.Left="52" Canvas.Top="12" Width="48" Height="10" Fill="#0F172A"/>
+                    <Rectangle Canvas.Left="60" Canvas.Top="-6" Width="32" Height="20" Fill="#1E293B" RadiusX="2" RadiusY="2"/>
+                    <Rectangle Canvas.Left="60" Canvas.Top="10" Width="32" Height="4" Fill="#E11D48"/>
                 </Canvas>
 
-                <!-- 5. Party Hat 🥳 -->
                 <Canvas x:Name="AccessoryPartyHat" Visibility="Collapsed">
-                    <!-- Cone -->
-                    <Polygon Points="52,24 80,24 66,-4" Fill="#8B5CF6"/>
-                    <!-- Dots -->
-                    <Ellipse Canvas.Left="64" Canvas.Top="6" Width="4" Height="4" Fill="#F59E0B"/>
-                    <Ellipse Canvas.Left="58" Canvas.Top="14" Width="4" Height="4" Fill="#10B981"/>
-                    <!-- Pom-pom -->
-                    <Ellipse Canvas.Left="63" Canvas.Top="-7" Width="7" Height="7" Fill="#FBBF24"/>
+                    <Polygon Points="60,20 90,20 75,-10" Fill="#8B5CF6"/>
+                    <Ellipse Canvas.Left="72" Canvas.Top="2" Width="4" Height="4" Fill="#F59E0B"/>
+                    <Ellipse Canvas.Left="73" Canvas.Top="-13" Width="7" Height="7" Fill="#FBBF24"/>
                 </Canvas>
 
-                <!-- 6. Nightcap (Sleeping Cap 🌙) -->
                 <Canvas x:Name="AccessoryNightcap" Visibility="Collapsed">
-                    <Path Data="M 46,26 C 50,14 62,6 74,4 C 82,10 88,20 86,26 Z"
-                          Fill="#1D4ED8"/>
-                    <!-- Drooping tail with pom-pom -->
-                    <Path Data="M 48,22 C 38,20 32,32 30,42"
-                          Stroke="#1D4ED8" StrokeThickness="7" StrokeEndLineCap="Round"/>
-                    <Ellipse Canvas.Left="26" Canvas.Top="40" Width="9" Height="9" Fill="#FACC15"/>
+                    <Path Data="M 52,24 C 56,10 70,2 84,0 C 92,6 98,16 96,22 Z" Fill="#1D4ED8"/>
+                    <Path Data="M 54,20 C 42,18 36,30 32,42" Stroke="#1D4ED8" StrokeThickness="7" StrokeEndLineCap="Round"/>
+                    <Ellipse Canvas.Left="28" Canvas.Top="40" Width="9" Height="9" Fill="#FACC15"/>
                 </Canvas>
 
-                <!-- 7. Rain Umbrella ☂️ -->
                 <Canvas x:Name="AccessoryUmbrella" Visibility="Collapsed">
-                    <Path Data="M 30,12 C 30,-12 90,-12 90,12 Z"
-                          Fill="#0284C7"/>
-                    <!-- Handle stick -->
-                    <Line X1="60" Y1="12" X2="60" Y2="50" Stroke="#475569" StrokeThickness="2.5"/>
-                    <Path Data="M 60,50 C 60,56 54,56 54,50" Stroke="#475569" StrokeThickness="2.5" Fill="Transparent"/>
+                    <Path Data="M 35,6 C 35,-20 105,-20 105,6 Z" Fill="#0284C7"/>
+                    <Line X1="70" Y1="6" X2="70" Y2="52" Stroke="#475569" StrokeThickness="2.5"/>
                 </Canvas>
             </Canvas>
 
-            <!-- 6. Right / Foreground Wing -->
-            <Canvas Width="140" Height="140">
-                <Path x:Name="RightWing"
-                      Data="M 46,65 C 46,65 38,76 40,94 C 42,106 54,104 62,90 C 66,80 62,68 46,65 Z"
-                      HorizontalAlignment="Left" VerticalAlignment="Top">
-                    <Path.Fill>
-                        <LinearGradientBrush x:Name="RightWingBrush" StartPoint="0.2,0" EndPoint="0.8,1">
-                            <GradientStop Color="#22C55E" Offset="0"/>
-                            <GradientStop Color="#16A34A" Offset="0.5"/>
-                            <GradientStop Color="#15803D" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Path.Fill>
-                    <Path.Effect>
-                        <DropShadowEffect BlurRadius="4" Color="#000000" Opacity="0.15" ShadowDepth="2" Direction="290"/>
-                    </Path.Effect>
-                    <Path.RenderTransform>
-                        <RotateTransform x:Name="RightWingRotate" Angle="0" CenterX="48" CenterY="68"/>
-                    </Path.RenderTransform>
-                </Path>
+            <!-- 6. LAYERED SCARLET MACAW WING (Scarlet + Golden Yellow + Cobalt Blue) -->
+            <Canvas Width="160" Height="220">
+                <Grid x:Name="RightWingGroup">
+                    <Grid.RenderTransform>
+                        <RotateTransform x:Name="RightWingRotate" Angle="0" CenterX="54" CenterY="82"/>
+                    </Grid.RenderTransform>
+
+                    <!-- Wing 1: Upper Scarlet Shoulder Coverts -->
+                    <Path x:Name="WingRedCoverts"
+                          Data="M 52,78 C 50,78 40,90 42,106 C 44,112 50,114 56,110 C 64,104 68,90 52,78 Z"
+                          Fill="#DC2626"/>
+
+                    <!-- Wing 2: Middle Golden Yellow Band (Signature Macaw Band) -->
+                    <Path x:Name="WingYellowBand"
+                          Data="M 44,102 C 42,112 40,122 44,134 C 48,138 56,134 62,124 C 64,118 60,108 44,102 Z">
+                        <Path.Fill>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#FDE047" Offset="0"/>
+                                <GradientStop Color="#FACC15" Offset="0.4"/>
+                                <GradientStop Color="#EAB308" Offset="0.8"/>
+                                <GradientStop Color="#CA8A04" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Path.Fill>
+                    </Path>
+
+                    <!-- Wing 3: Primary Flight Feathers (Electric Royal Blue) -->
+                    <Path x:Name="WingBluePrimaries"
+                          Data="M 44,126 C 42,142 46,164 54,178 C 58,178 66,160 70,142 C 72,132 64,124 44,126 Z">
+                        <Path.Fill>
+                            <LinearGradientBrush StartPoint="0.2,0" EndPoint="0.8,1">
+                                <GradientStop Color="#3B82F6" Offset="0"/>
+                                <GradientStop Color="#2563EB" Offset="0.4"/>
+                                <GradientStop Color="#1D4ED8" Offset="0.8"/>
+                                <GradientStop Color="#1E3A8A" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Path.Fill>
+                        <Path.Effect>
+                            <DropShadowEffect BlurRadius="4" Color="#000000" Opacity="0.2" ShadowDepth="2" Direction="290"/>
+                        </Path.Effect>
+                    </Path>
+                </Grid>
             </Canvas>
         </Grid>
     </Grid>

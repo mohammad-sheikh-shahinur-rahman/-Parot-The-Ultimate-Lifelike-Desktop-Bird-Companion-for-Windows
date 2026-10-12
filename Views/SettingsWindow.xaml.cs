@@ -33,9 +33,10 @@ public partial class SettingsWindow : Window
         // Skins
         CmbSkin.SelectedIndex = _current.Skin switch
         {
-            "Cockatiel" => 1,
-            "Macaw" => 2,
-            _ => 0
+            "GreenParakeet" => 1,
+            "Cockatiel" => 2,
+            "BlueMacaw" => 3,
+            _ => 0 // ScarletMacaw
         };
 
         // Accessories
@@ -122,9 +123,10 @@ public partial class SettingsWindow : Window
         // Skins
         _current.Skin = CmbSkin.SelectedIndex switch
         {
-            1 => "Cockatiel",
-            2 => "Macaw",
-            _ => "GreenParakeet"
+            1 => "GreenParakeet",
+            2 => "Cockatiel",
+            3 => "BlueMacaw",
+            _ => "ScarletMacaw"
         };
 
         // Accessories

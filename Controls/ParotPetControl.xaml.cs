@@ -25,7 +25,7 @@ public partial class ParotPetControl : UserControl
     private readonly Storyboard _danceStoryboard;
 
     private bool _isFacingLeft = false;
-    private string _currentSkin = "GreenParakeet";
+    private string _currentSkin = "ScarletMacaw";
     private string _currentAccessory = "None";
 
     public PetState CurrentState => _currentState;
@@ -47,6 +47,8 @@ public partial class ParotPetControl : UserControl
         _blinkTimer.Interval = TimeSpan.FromSeconds(_random.Next(3, 6));
         _blinkTimer.Tick += OnBlinkTimerTick;
         _blinkTimer.Start();
+
+        ApplySkin("ScarletMacaw");
     }
 
     public void ApplySkin(string skin)
@@ -55,77 +57,93 @@ public partial class ParotPetControl : UserControl
 
         switch (skin)
         {
-            case "Cockatiel": // 🟡 Yellow Cockatiel
-                CockatielCrest.Visibility = Visibility.Visible;
-                ParakeetCrest1.Visibility = Visibility.Collapsed;
-                ParakeetCrest2.Visibility = Visibility.Collapsed;
-                NeckRingRed.Visibility = Visibility.Collapsed;
-                NeckRingBlack.Visibility = Visibility.Collapsed;
-
-                CheekBlushLeft.Fill = new SolidColorBrush(Color.FromRgb(249, 115, 22));
-                CheekBlushRight.Fill = new SolidColorBrush(Color.FromRgb(249, 115, 22));
-                CheekBlushLeft.Opacity = 0.9;
-                CheekBlushRight.Opacity = 0.9;
-
-                BodyMainPath.Fill = CreateLinearBrush("#FEF08A", "#FACC15", "#EAB308");
-                HeadBasePath.Fill = CreateLinearBrush("#FEF9C3", "#FDE047", "#FACC15");
-                BellyPath.Fill = CreateRadialBrush("#FEFCE8", "#FEF08A");
-                LeftWing.Fill = new SolidColorBrush(Color.FromRgb(202, 138, 4));
-                RightWing.Fill = CreateLinearBrush("#FACC15", "#EAB308", "#CA8A04");
-                UpperBeak.Fill = CreateLinearBrush("#94A3B8", "#64748B", "#475569");
-                LowerBeak.Fill = new SolidColorBrush(Color.FromRgb(71, 85, 105));
-                TailFeatherPath.Fill = CreateLinearBrush("#EAB308", "#CA8A04", "#A16207");
-                Eyelid.Fill = new SolidColorBrush(Color.FromRgb(250, 204, 21));
-                break;
-
-            case "Macaw": // 🔵 Blue & Gold Macaw
+            case "GreenParakeet":
                 CockatielCrest.Visibility = Visibility.Collapsed;
-                ParakeetCrest1.Visibility = Visibility.Visible;
-                ParakeetCrest2.Visibility = Visibility.Visible;
-                ParakeetCrest1.Fill = new SolidColorBrush(Color.FromRgb(29, 78, 216));
-                ParakeetCrest2.Fill = new SolidColorBrush(Color.FromRgb(37, 99, 235));
-                NeckRingRed.Visibility = Visibility.Collapsed;
-                NeckRingBlack.Visibility = Visibility.Visible;
-
-                CheekBlushLeft.Fill = new SolidColorBrush(Color.FromRgb(255, 255, 255));
-                CheekBlushRight.Fill = new SolidColorBrush(Color.FromRgb(255, 255, 255));
-                CheekBlushLeft.Opacity = 0.8;
-                CheekBlushRight.Opacity = 0.8;
-
-                BodyMainPath.Fill = CreateLinearBrush("#2563EB", "#1D4ED8", "#1E40AF");
-                HeadBasePath.Fill = CreateLinearBrush("#60A5FA", "#3B82F6", "#2563EB");
-                BellyPath.Fill = CreateRadialBrush("#FEF08A", "#FBBF24");
-                LeftWing.Fill = new SolidColorBrush(Color.FromRgb(30, 64, 175));
-                RightWing.Fill = CreateLinearBrush("#3B82F6", "#2563EB", "#1D4ED8");
-                UpperBeak.Fill = CreateLinearBrush("#334155", "#1E293B", "#0F172A");
-                LowerBeak.Fill = new SolidColorBrush(Color.FromRgb(15, 23, 42));
-                TailFeatherPath.Fill = CreateLinearBrush("#2563EB", "#1D4ED8", "#0284C7");
-                Eyelid.Fill = new SolidColorBrush(Color.FromRgb(59, 130, 246));
-                break;
-
-            default: // 🟢 Green Parakeet (Rose-ringed)
-                CockatielCrest.Visibility = Visibility.Collapsed;
-                ParakeetCrest1.Visibility = Visibility.Visible;
-                ParakeetCrest2.Visibility = Visibility.Visible;
-                ParakeetCrest1.Fill = new SolidColorBrush(Color.FromRgb(21, 128, 61));
-                ParakeetCrest2.Fill = new SolidColorBrush(Color.FromRgb(34, 197, 94));
-                NeckRingRed.Visibility = Visibility.Visible;
-                NeckRingBlack.Visibility = Visibility.Visible;
-
-                CheekBlushLeft.Fill = new SolidColorBrush(Color.FromRgb(251, 113, 133));
-                CheekBlushRight.Fill = new SolidColorBrush(Color.FromRgb(251, 113, 133));
-                CheekBlushLeft.Opacity = 0.55;
-                CheekBlushRight.Opacity = 0.45;
+                MacawFaceMask.Visibility = Visibility.Collapsed;
+                FaceStripes.Visibility = Visibility.Collapsed;
 
                 BodyMainPath.Fill = CreateLinearBrush("#4ADE80", "#22C55E", "#15803D");
                 HeadBasePath.Fill = CreateLinearBrush("#4ADE80", "#22C55E", "#16A34A");
                 BellyPath.Fill = CreateRadialBrush("#BBF7D0", "#86EFAC");
                 LeftWing.Fill = new SolidColorBrush(Color.FromRgb(21, 128, 61));
-                RightWing.Fill = CreateLinearBrush("#22C55E", "#16A34A", "#15803D");
+                WingRedCoverts.Fill = new SolidColorBrush(Color.FromRgb(34, 197, 94));
+                WingYellowBand.Fill = new SolidColorBrush(Color.FromRgb(22, 163, 74));
+                WingBluePrimaries.Fill = new SolidColorBrush(Color.FromRgb(21, 128, 61));
                 UpperBeak.Fill = CreateLinearBrush("#F97316", "#EA580C", "#DC2626");
                 LowerBeak.Fill = new SolidColorBrush(Color.FromRgb(194, 65, 12));
                 TailFeatherPath.Fill = CreateLinearBrush("#059669", "#0D9488", "#0284C7");
+                TailOuterBlueLeft.Fill = new SolidColorBrush(Color.FromRgb(5, 150, 105));
+                TailOuterBlueRight.Fill = new SolidColorBrush(Color.FromRgb(2, 132, 199));
                 Eyelid.Fill = new SolidColorBrush(Color.FromRgb(34, 197, 94));
+                break;
+
+            case "Cockatiel":
+                CockatielCrest.Visibility = Visibility.Visible;
+                MacawFaceMask.Visibility = Visibility.Collapsed;
+                FaceStripes.Visibility = Visibility.Collapsed;
+
+                BodyMainPath.Fill = CreateLinearBrush("#FEF08A", "#FACC15", "#EAB308");
+                HeadBasePath.Fill = CreateLinearBrush("#FEF9C3", "#FDE047", "#FACC15");
+                BellyPath.Fill = CreateRadialBrush("#FEFCE8", "#FEF08A");
+                LeftWing.Fill = new SolidColorBrush(Color.FromRgb(202, 138, 4));
+                WingRedCoverts.Fill = new SolidColorBrush(Color.FromRgb(234, 179, 8));
+                WingYellowBand.Fill = new SolidColorBrush(Color.FromRgb(250, 204, 21));
+                WingBluePrimaries.Fill = new SolidColorBrush(Color.FromRgb(148, 163, 184));
+                UpperBeak.Fill = CreateLinearBrush("#94A3B8", "#64748B", "#475569");
+                LowerBeak.Fill = new SolidColorBrush(Color.FromRgb(71, 85, 105));
+                TailFeatherPath.Fill = CreateLinearBrush("#EAB308", "#CA8A04", "#A16207");
+                TailOuterBlueLeft.Fill = new SolidColorBrush(Color.FromRgb(202, 138, 4));
+                TailOuterBlueRight.Fill = new SolidColorBrush(Color.FromRgb(161, 98, 7));
+                Eyelid.Fill = new SolidColorBrush(Color.FromRgb(250, 204, 21));
+                break;
+
+            case "BlueMacaw":
+                CockatielCrest.Visibility = Visibility.Collapsed;
+                MacawFaceMask.Visibility = Visibility.Visible;
+                FaceStripes.Visibility = Visibility.Visible;
+                FaceStripes.Stroke = new SolidColorBrush(Color.FromRgb(15, 23, 42));
+
+                BodyMainPath.Fill = CreateLinearBrush("#2563EB", "#1D4ED8", "#1E40AF");
+                HeadBasePath.Fill = CreateLinearBrush("#3B82F6", "#2563EB", "#1D4ED8");
+                BellyPath.Fill = CreateRadialBrush("#FEF08A", "#FBBF24");
+                LeftWing.Fill = new SolidColorBrush(Color.FromRgb(30, 64, 175));
+                WingRedCoverts.Fill = new SolidColorBrush(Color.FromRgb(29, 78, 216));
+                WingYellowBand.Fill = CreateLinearBrush("#60A5FA", "#3B82F6", "#2563EB");
+                WingBluePrimaries.Fill = CreateLinearBrush("#1D4ED8", "#1E40AF", "#172554");
+                UpperBeak.Fill = CreateLinearBrush("#334155", "#1E293B", "#0F172A");
+                LowerBeak.Fill = new SolidColorBrush(Color.FromRgb(15, 23, 42));
+                TailFeatherPath.Fill = CreateLinearBrush("#2563EB", "#1D4ED8", "#0284C7");
+                TailOuterBlueLeft.Fill = new SolidColorBrush(Color.FromRgb(29, 78, 216));
+                TailOuterBlueRight.Fill = new SolidColorBrush(Color.FromRgb(2, 132, 199));
+                Eyelid.Fill = new SolidColorBrush(Color.FromRgb(37, 99, 235));
+                break;
+
+            default: // 🦜 REALISTIC SCARLET MACAW (Ara macao) - EXACT TO USER PHOTOS!
+                CockatielCrest.Visibility = Visibility.Collapsed;
+                MacawFaceMask.Visibility = Visibility.Visible;
+                FaceStripes.Visibility = Visibility.Visible;
+                FaceStripes.Stroke = new SolidColorBrush(Color.FromRgb(220, 38, 38));
+
+                BodyMainPath.Fill = CreateLinearBrush("#F87171", "#EF4444", "#DC2626");
+                HeadBasePath.Fill = CreateLinearBrush("#F87171", "#EF4444", "#DC2626");
+                BellyPath.Fill = CreateRadialBrush("#FCA5A5", "#EF4444");
+                LeftWing.Fill = new SolidColorBrush(Color.FromRgb(185, 28, 28));
+
+                // Layered Wing Coverts: Scarlet Red -> Canary Yellow -> Cobalt Blue
+                WingRedCoverts.Fill = new SolidColorBrush(Color.FromRgb(220, 38, 38));
+                WingYellowBand.Fill = CreateLinearBrush("#FDE047", "#FACC15", "#EAB308");
+                WingBluePrimaries.Fill = CreateLinearBrush("#3B82F6", "#2563EB", "#1D4ED8");
+
+                // Beak: Ivory/Pale Horn upper, Charcoal lower
+                UpperBeak.Fill = CreateLinearBrush("#FFFFFF", "#FEF3C7", "#FDE68A");
+                LowerBeak.Fill = new SolidColorBrush(Color.FromRgb(15, 23, 42));
+
+                // Tail: Long Scarlet Central, Royal Blue Outer
+                TailFeatherPath.Fill = CreateLinearBrush("#EF4444", "#DC2626", "#B91C1C");
+                TailOuterBlueLeft.Fill = new SolidColorBrush(Color.FromRgb(29, 78, 216));
+                TailOuterBlueRight.Fill = new SolidColorBrush(Color.FromRgb(37, 99, 235));
+
+                Eyelid.Fill = new SolidColorBrush(Color.FromRgb(220, 38, 38));
                 break;
         }
     }
@@ -227,7 +245,7 @@ public partial class ParotPetControl : UserControl
                 ShowAwakeEye();
                 _flapStoryboard.Stop();
                 _danceStoryboard.Stop();
-                SetAccessory("Glasses"); // Wear reading glasses during Pomodoro!
+                SetAccessory("Glasses");
                 break;
 
             case PetState.PomodoroBreak:
@@ -235,7 +253,7 @@ public partial class ParotPetControl : UserControl
                 _flapStoryboard.Begin();
                 AnimateHearts();
                 AnimateMusicNote();
-                SetAccessory("PartyHat"); // Celebrate break!
+                SetAccessory("PartyHat");
                 break;
 
             case PetState.CuriousHeadTilt:

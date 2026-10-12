@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Media;
 using System.Threading.Tasks;
+using System.Windows.Media;
 
 namespace Parot.Services;
 
@@ -9,6 +10,7 @@ public class SoundService
 {
     private bool _enabled = true;
     private double _volume = 0.8;
+    private readonly Random _random = new();
 
     private readonly MemoryStream? _chirpStream;
     private readonly MemoryStream? _doubleChirpStream;
@@ -16,6 +18,14 @@ public class SoundService
     private readonly MemoryStream? _munchStream;
     private readonly MemoryStream? _chimeStream;
     private readonly MemoryStream? _snoreStream;
+
+    private readonly string _voiceFolder;
+    private readonly string? _fileChatter;
+    private readonly string? _fileMimic;
+    private readonly string? _fileScreech;
+    private readonly string? _fileJungle;
+    private readonly string? _fileKea;
+    private readonly string? _fileMacaw;
 
     public bool Enabled
     {
@@ -34,6 +44,25 @@ public class SoundService
         _enabled = enabled;
         _volume = volume;
 
+        // 1. Locate Voice Folder (first check local Assets\Sounds, then K:\Parot\Parot Voice)
+        string localFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Sounds");
+        string explicitFolder = @"K:\Parot\Parot Voice";
+
+        _voiceFolder = Directory.Exists(localFolder) && Directory.GetFiles(localFolder, "*.mp3").Length > 0
+            ? localFolder
+            : (Directory.Exists(explicitFolder) ? explicitFolder : localFolder);
+
+        if (Directory.Exists(_voiceFolder))
+        {
+            _fileChatter = FindAudioFile("chatter");
+            _fileMimic = FindAudioFile("imitating");
+            _fileScreech = FindAudioFile("screech");
+            _fileJungle = FindAudioFile("88486");
+            _fileKea = FindAudioFile("105461");
+            _fileMacaw = FindAudioFile("31178");
+        }
+
+        // 2. Fallback procedural synthesis
         try
         {
             _chirpStream = CreateChirpWav(2400, 3800, 0.12, 0.8);
@@ -49,12 +78,125 @@ public class SoundService
         }
     }
 
-    public void PlayChirp() => PlayStream(_chirpStream);
-    public void PlayDoubleChirp() => PlayStream(_doubleChirpStream);
-    public void PlayTrill() => PlayStream(_trillStream);
+    private string? FindAudioFile(string pattern)
+    {
+        try
+        {
+            if (!Directory.Exists(_voiceFolder)) return null;
+            var files = Directory.GetFiles(_voiceFolder, $"*{pattern}*.mp3");
+            return files.Length > 0 ? files[0] : null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    // High level sound triggers
+    public void PlayChirp()
+    {
+        // Try real Kea or screech first
+        if (_fileKea != null && _random.Next(2) == 0)
+        {
+            PlayMp3(_fileKea);
+        }
+        else if (_fileScreech != null && _random.Next(3) == 0)
+        {
+            PlayMp3(_fileScreech);
+        }
+        else
+        {
+            PlayStream(_chirpStream);
+        }
+    }
+
+    public void PlayDoubleChirp()
+    {
+        if (_fileMimic != null && _random.Next(2) == 0)
+        {
+            PlayMp3(_fileMimic);
+        }
+        else if (_fileChatter != null)
+        {
+            PlayMp3(_fileChatter);
+        }
+        else
+        {
+            PlayStream(_doubleChirpStream);
+        }
+    }
+
+    public void PlayTrill()
+    {
+        if (_fileChatter != null)
+        {
+            PlayMp3(_fileChatter);
+        }
+        else if (_fileJungle != null)
+        {
+            PlayMp3(_fileJungle);
+        }
+        else
+        {
+            PlayStream(_trillStream);
+        }
+    }
+
+    public void PlayRealParrotChatter()
+    {
+        if (_fileChatter != null) PlayMp3(_fileChatter);
+        else PlayStream(_doubleChirpStream);
+    }
+
+    public void PlayRealParrotScreech()
+    {
+        if (_fileScreech != null) PlayMp3(_fileScreech);
+        else PlayStream(_chirpStream);
+    }
+
+    public void PlayRealParrotMimic()
+    {
+        if (_fileMimic != null) PlayMp3(_fileMimic);
+        else PlayStream(_trillStream);
+    }
+
     public void PlayMunch() => PlayStream(_munchStream);
     public void PlayChime() => PlayStream(_chimeStream);
     public void PlaySnore() => PlayStream(_snoreStream);
+
+    private void PlayMp3(string? filePath)
+    {
+        if (!_enabled || string.IsNullOrEmpty(filePath) || !File.Exists(filePath) || _volume <= 0.01)
+        {
+            return;
+        }
+
+        try
+        {
+            if (System.Windows.Application.Current?.Dispatcher != null)
+            {
+                System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    try
+                    {
+                        var player = new MediaPlayer();
+                        player.Volume = _volume;
+                        player.Open(new Uri(filePath, UriKind.Absolute));
+                        player.Play();
+                        player.MediaEnded += (s, e) => player.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"MediaPlayer error: {ex.Message}");
+                    }
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to play MP3: {ex.Message}");
+        }
+    }
 
     private void PlayStream(MemoryStream? stream)
     {
@@ -75,6 +217,8 @@ public class SoundService
         });
     }
 
+    #region Procedural Fallbacks
+
     private static MemoryStream CreateChirpWav(double startFreq, double endFreq, double durationSeconds, double maxAmp)
     {
         const int sampleRate = 44100;
@@ -86,11 +230,9 @@ public class SoundService
             double t = (double)i / sampleRate;
             double progress = t / durationSeconds;
 
-            // Instantaneous frequency sweep
             double freq = startFreq + (endFreq - startFreq) * Math.Pow(progress, 1.2);
             double phase = 2.0 * Math.PI * (startFreq * t + 0.5 * (endFreq - startFreq) * t * progress);
 
-            // Envelope: sharp attack, smooth decay
             double envelope = Math.Sin(Math.PI * Math.Pow(progress, 0.6));
             double sampleValue = Math.Sin(phase) * envelope * maxAmp * short.MaxValue;
             samples[i] = (short)Math.Clamp(sampleValue, short.MinValue, short.MaxValue);
@@ -110,7 +252,6 @@ public class SoundService
         int gapEnd = (int)(sampleRate * 0.14);
         int chirp2End = (int)(sampleRate * 0.26);
 
-        // Chirp 1: 2200 to 3400
         for (int i = 0; i < chirp1End; i++)
         {
             double t = (double)i / sampleRate;
@@ -120,9 +261,6 @@ public class SoundService
             samples[i] = (short)(Math.Sin(2.0 * Math.PI * freq * t) * env * short.MaxValue);
         }
 
-        // Gap is silence
-
-        // Chirp 2: 2600 to 4100
         for (int i = gapEnd; i < chirp2End; i++)
         {
             double t = (double)(i - gapEnd) / sampleRate;
@@ -147,7 +285,6 @@ public class SoundService
             double t = (double)i / sampleRate;
             double progress = t / durationSeconds;
 
-            // Vibrato: 20 Hz oscillation
             double vibrato = Math.Sin(2.0 * Math.PI * 22.0 * t) * 350.0;
             double currentFreq = centerFreq + vibrato;
             phase += 2.0 * Math.PI * currentFreq / sampleRate;
@@ -168,7 +305,6 @@ public class SoundService
         var samples = new short[totalSamples];
         var rand = new Random(42);
 
-        // Three quick little crunch clicks
         int[] crunchStarts = [0, (int)(sampleRate * 0.08), (int)(sampleRate * 0.16)];
         int crunchLen = (int)(sampleRate * 0.04);
 
@@ -193,7 +329,6 @@ public class SoundService
         int totalSamples = (int)(sampleRate * duration);
         var samples = new short[totalSamples];
 
-        // Harmonious sparkling triad: 1046.5Hz (C6), 1318.5Hz (E6), 1567.9Hz (G6)
         for (int i = 0; i < totalSamples; i++)
         {
             double t = (double)i / sampleRate;
@@ -237,22 +372,19 @@ public class SoundService
             int byteRate = sampleRate * 2;
             int dataChunkSize = samples.Length * 2;
 
-            // RIFF header
             writer.Write("RIFF"u8.ToArray());
             writer.Write(36 + dataChunkSize);
             writer.Write("WAVE"u8.ToArray());
 
-            // fmt sub-chunk
             writer.Write("fmt "u8.ToArray());
-            writer.Write(16); // Subchunk1Size (16 for PCM)
-            writer.Write((short)1); // AudioFormat (1 for PCM)
-            writer.Write((short)1); // NumChannels (1 = Mono)
+            writer.Write(16);
+            writer.Write((short)1);
+            writer.Write((short)1);
             writer.Write(sampleRate);
             writer.Write(byteRate);
-            writer.Write((short)2); // BlockAlign
-            writer.Write((short)16); // BitsPerSample
+            writer.Write((short)2);
+            writer.Write((short)16);
 
-            // data sub-chunk
             writer.Write("data"u8.ToArray());
             writer.Write(dataChunkSize);
             foreach (var sample in samples)
@@ -264,4 +396,6 @@ public class SoundService
         ms.Position = 0;
         return ms;
     }
+
+    #endregion
 }

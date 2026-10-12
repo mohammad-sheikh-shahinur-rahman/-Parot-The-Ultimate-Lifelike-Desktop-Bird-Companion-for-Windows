@@ -10,7 +10,7 @@ public class AppSettings
     public bool GhostMode { get; set; } = false; // Click-through
 
     // Bird Skin & Accessories
-    public string Skin { get; set; } = "GreenParakeet"; // "GreenParakeet", "Cockatiel", "Macaw"
+    public string Skin { get; set; } = "ScarletMacaw"; // "ScarletMacaw", "GreenParakeet", "Cockatiel", "BlueMacaw"
     public string Accessory { get; set; } = "None"; // "None", "Glasses", "Sunglasses", "Scarf", "TopHat", "PartyHat", "Umbrella"
 
     // Pet Behavior & Perching

@@ -6,7 +6,7 @@
         xmlns:controls="clr-namespace:Parot.Controls"
         mc:Ignorable="d"
         Title="Parot"
-        Width="300" Height="270"
+        Width="320" Height="340"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"

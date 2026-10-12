@@ -114,7 +114,8 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="পাখির প্রজাতি (Bird Species):" FontSize="12" VerticalAlignment="Center"/>
-                            <ComboBox Grid.Column="1" x:Name="CmbSkin" Width="170" FontSize="12">
+                            <ComboBox Grid.Column="1" x:Name="CmbSkin" Width="190" FontSize="12">
+                                <ComboBoxItem Content="🔴 স্কারলেট ম্যাকাও (Scarlet Macaw)" IsSelected="True"/>
                                 <ComboBoxItem Content="🟢 সবুজ দেশি টিয়া (Parakeet)"/>
                                 <ComboBoxItem Content="🟡 হলুদ ককাটেল (Cockatiel)"/>
                                 <ComboBoxItem Content="🔵 নীল-হলুদ ম্যাকাও (Macaw)"/>
