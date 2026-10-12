@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using Parot.Helpers;
@@ -20,6 +21,10 @@ public partial class MainWindow : Window
     private readonly SoundService _soundService;
     private readonly ReminderService _reminderService;
     private readonly TrayIconService _trayIconService;
+    private readonly StatisticsService _statsService;
+    private readonly PomodoroService _pomodoroService;
+    private readonly AudioBeatDetectorService _audioDetectorService;
+    private readonly VoiceMimicService _voiceMimicService;
 
     private readonly DispatcherTimer _loopTimer;
     private readonly Random _random = new();
@@ -31,40 +36,57 @@ public partial class MainWindow : Window
     private DateTime _lastInteractionTime = DateTime.Now;
     private Point _lastKnownMousePos;
     private DateTime _lastRoamTime = DateTime.Now;
+    private DateTime _lastActiveMinuteTick = DateTime.Now;
+    private DateTime _lastDanceTime = DateTime.Now;
+    private bool _isPlayingTag = false;
 
     public MainWindow()
     {
         InitializeComponent();
 
         _settingsService = new SettingsService();
-        _soundService = new SoundService(_settingsService.CurrentSettings.SoundEnabled, _settingsService.CurrentSettings.SoundVolume);
-        _reminderService = new ReminderService(_settingsService.CurrentSettings);
+        var s = _settingsService.CurrentSettings;
+
+        _soundService = new SoundService(s.SoundEnabled, s.SoundVolume);
+        _reminderService = new ReminderService(s);
         _trayIconService = new TrayIconService();
+        _statsService = new StatisticsService();
+        _pomodoroService = new PomodoroService(s.PomodoroFocusMinutes, s.PomodoroBreakMinutes);
+        _audioDetectorService = new AudioBeatDetectorService();
+        _voiceMimicService = new VoiceMimicService(s.VoiceMimicEnabled, s.VoicePitchRate);
 
-        // Wire up reminders
+        // Reminders & Speech Bubble
         _reminderService.ReminderTriggered += OnReminderTriggered;
-
-        // Wire up speech bubble actions
         SpeechBubble.ReminderActionTaken += OnReminderActionTaken;
+        SpeechBubble.QuestionAsked += OnQuestionAsked;
+        SpeechBubble.WaterLogged += OnWaterLogged;
 
-        // Wire up tray icon actions
+        // Pomodoro Events
+        _pomodoroService.Tick += OnPomodoroTick;
+        _pomodoroService.PhaseChanged += OnPomodoroPhaseChanged;
+
+        // Audio Beat / Music Detection
+        _audioDetectorService.BeatDetected += OnAudioBeatDetected;
+
+        // Tray Icon Actions
         _trayIconService.ShowHideToggled += ToggleVisibility;
         _trayIconService.SleepWakeToggled += ToggleSleepWake;
         _trayIconService.TakeBreakRequested += () => _reminderService.TriggerBreakNow();
         _trayIconService.DrinkWaterRequested += () => _reminderService.TriggerHydrationNow();
         _trayIconService.FeedTreatRequested += FeedChiliTreat;
+        _trayIconService.PomodoroToggled += TogglePomodoro;
+        _trayIconService.DailyReportRequested += OpenDailyReportWindow;
+        _trayIconService.PerchModeToggled += TogglePerchMode;
+        _trayIconService.AskParotRequested += () => SpeechBubble.PromptAskParot();
         _trayIconService.GhostModeToggled += ToggleGhostMode;
         _trayIconService.SettingsRequested += OpenSettingsWindow;
         _trayIconService.ExitRequested += ExitApplication;
 
-        // Settings changed event
+        // Settings Changed Event
         _settingsService.SettingsChanged += ApplySettings;
 
-        // Main behavioral loop (runs every 150ms for smooth low-CPU responsiveness)
-        _loopTimer = new DispatcherTimer
-        {
-            Interval = TimeSpan.FromMilliseconds(150)
-        };
+        // Main behavioral loop (150ms for low CPU and smooth tracking)
+        _loopTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(150) };
         _loopTimer.Tick += OnBehaviorLoopTick;
     }
 
@@ -74,22 +96,34 @@ public partial class MainWindow : Window
         PositionWindowInitially();
         _loopTimer.Start();
 
-        // Play initial happy chirp & friendly greeting
         _soundService.PlayChirp();
         var greet = Dialogues.GetWakeUpDialogue(_settingsService.CurrentSettings.Language);
         SpeechBubble.ShowMessage(greet, "🦜", "Parot", 5);
+
+        // Check Night Mode
+        CheckNightMode();
     }
 
     private void ApplySettings(AppSettings s)
     {
+        Pet.ApplySkin(s.Skin);
+        Pet.SetAccessory(s.Accessory);
         Pet.SetScale(s.Scale);
+
         Topmost = s.AlwaysOnTop;
         _soundService.Enabled = s.SoundEnabled;
         _soundService.Volume = s.SoundVolume;
+        _voiceMimicService.Enabled = s.VoiceMimicEnabled;
+        _voiceMimicService.VoiceRate = s.VoicePitchRate;
+        _audioDetectorService.Enabled = s.DanceToMusic;
+
         _reminderService.UpdateSettings(s);
+        _pomodoroService.FocusMinutes = s.PomodoroFocusMinutes;
+        _pomodoroService.BreakMinutes = s.PomodoroBreakMinutes;
 
         WindowInteropHelperNative.SetClickThrough(this, s.GhostMode);
         _trayIconService.UpdateGhostState(s.GhostMode);
+        _trayIconService.UpdatePerchMode(s.PerchMode == "ActiveWindow");
     }
 
     private void PositionWindowInitially()
@@ -105,7 +139,6 @@ public partial class MainWindow : Window
         }
         else
         {
-            // Default: Perch comfortably near bottom-right, right above taskbar
             Left = workArea.Right - Width - 30;
             Top = workArea.Bottom - Height;
         }
@@ -117,14 +150,20 @@ public partial class MainWindow : Window
 
         var currentMouse = WindowInteropHelperNative.GetCurrentMousePosition();
 
-        // Check if mouse moved anywhere on screen
+        // Active Screen Time Logging (every minute)
+        if ((DateTime.Now - _lastActiveMinuteTick).TotalMinutes >= 1)
+        {
+            _lastActiveMinuteTick = DateTime.Now;
+            _statsService.AddActiveMinutes(1);
+        }
+
+        // Check if mouse moved
         if (Math.Abs(currentMouse.X - _lastKnownMousePos.X) > 2 ||
             Math.Abs(currentMouse.Y - _lastKnownMousePos.Y) > 2)
         {
             _lastKnownMousePos = currentMouse;
             _lastInteractionTime = DateTime.Now;
 
-            // If sleeping and mouse passes very close, pet may stir
             double birdCenterX = Left + (Width / 2);
             double birdCenterY = Top + Height - 50;
             double dist = Math.Sqrt(Math.Pow(currentMouse.X - birdCenterX, 2) + Math.Pow(currentMouse.Y - birdCenterY, 2));
@@ -133,10 +172,24 @@ public partial class MainWindow : Window
             {
                 WakeUp();
             }
+
+            // Tag Game Logic: move towards cursor
+            if (_isPlayingTag)
+            {
+                MoveTowards(currentMouse.X - 70, currentMouse.Y - 100, 18);
+                if (dist < 45)
+                {
+                    _isPlayingTag = false;
+                    Pet.SetState(PetState.Happy);
+                    _soundService.PlayTrill();
+                    Pet.AnimateHearts();
+                    SpeechBubble.ShowMessage("খপ করে ধরে ফেলেছি! কিচিরমিচির! 🏃❤️", "🎉", "Tag!", 4);
+                }
+            }
         }
 
         // Mouse follow and eye tracking
-        if (Pet.CurrentState != PetState.Sleeping && Pet.CurrentState != PetState.Dragged)
+        if (Pet.CurrentState != PetState.Sleeping && Pet.CurrentState != PetState.NightSleeping && Pet.CurrentState != PetState.Dragged)
         {
             double birdCenterX = Left + (Width / 2);
             double birdCenterY = Top + Height - 50;
@@ -145,7 +198,6 @@ public partial class MainWindow : Window
 
             Pet.LookAt(deltaX, deltaY);
 
-            // If cursor is close and pet is idle, occasional curious tilt
             double dist = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
             if (dist < 50 && Pet.CurrentState == PetState.Idle && _random.Next(100) < 4)
             {
@@ -154,9 +206,19 @@ public partial class MainWindow : Window
             }
         }
 
-        // Auto-Sleep Check
+        // Feature 4: Active Window Perching
         var s = _settingsService.CurrentSettings;
-        if (s.AutoSleepMinutes > 0 && Pet.CurrentState != PetState.Sleeping)
+        if (s.PerchMode == "ActiveWindow" && !_isPlayingTag && Pet.CurrentState != PetState.Dragged)
+        {
+            var myHwnd = new WindowInteropHelper(this).Handle;
+            if (WindowPerchService.GetActiveWindowPerchPosition(myHwnd, Width, Height, out var perchTarget))
+            {
+                MoveTowards(perchTarget.X, perchTarget.Y, 20);
+            }
+        }
+
+        // Auto-Sleep Check
+        if (s.AutoSleepMinutes > 0 && Pet.CurrentState != PetState.Sleeping && Pet.CurrentState != PetState.NightSleeping && Pet.CurrentState != PetState.PomodoroFocus)
         {
             var idleSeconds = (DateTime.Now - _lastInteractionTime).TotalSeconds;
             if (idleSeconds >= s.AutoSleepMinutes * 60)
@@ -165,8 +227,8 @@ public partial class MainWindow : Window
             }
         }
 
-        // Idle Roaming / Hopping along screen bottom
-        if (s.AllowWalking && Pet.CurrentState == PetState.Idle)
+        // Roaming / Hopping along bottom
+        if (s.AllowWalking && s.PerchMode == "Desktop" && Pet.CurrentState == PetState.Idle && !_isPlayingTag)
         {
             var timeSinceRoam = (DateTime.Now - _lastRoamTime).TotalSeconds;
             if (timeSinceRoam >= 45 && _random.Next(100) < 15)
@@ -177,48 +239,164 @@ public partial class MainWindow : Window
         }
     }
 
-    private void PerformRandomHop()
+    private void MoveTowards(double targetX, double targetY, double maxStep)
     {
-        var workArea = SystemParameters.WorkArea;
-        bool isAtBottom = Math.Abs(Top - (workArea.Bottom - Height)) < 80;
-        if (!isAtBottom) return;
+        double diffX = targetX - Left;
+        double diffY = targetY - Top;
+        double dist = Math.Sqrt(diffX * diffX + diffY * diffY);
 
-        bool hopLeft = _random.Next(2) == 0;
-        double hopDistance = _random.Next(35, 75);
-
-        // Keep within work area bounds
-        if (hopLeft && (Left - hopDistance) < workArea.Left + 20)
+        if (dist > 4)
         {
-            hopLeft = false;
+            double step = Math.Min(dist, maxStep);
+            Left += (diffX / dist) * step;
+            Top += (diffY / dist) * step;
+
+            if (Math.Abs(diffX) > 10)
+            {
+                Pet.SetFacing(diffX < 0);
+            }
         }
-        else if (!hopLeft && (Left + hopDistance) > workArea.Right - Width - 20)
-        {
-            hopLeft = true;
-        }
-
-        double targetLeft = hopLeft ? Left - hopDistance : Left + hopDistance;
-        Pet.SetFacing(hopLeft);
-        Pet.SetState(PetState.Hopping);
-
-        var moveAnim = new DoubleAnimation
-        {
-            To = targetLeft,
-            Duration = TimeSpan.FromMilliseconds(300),
-            EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
-        };
-
-        moveAnim.Completed += (s, e) =>
-        {
-            Pet.SetState(PetState.Idle);
-            _settingsService.CurrentSettings.LastPosX = Left;
-            _settingsService.CurrentSettings.LastPosY = Top;
-        };
-
-        BeginAnimation(LeftProperty, moveAnim);
-        _soundService.PlayChirp();
     }
 
-    #region Dragging & Mouse Events
+    private void CheckNightMode()
+    {
+        var s = _settingsService.CurrentSettings;
+        if (s.NightModeAuto)
+        {
+            int hour = DateTime.Now.Hour;
+            if (hour >= 22 || hour < 6)
+            {
+                Pet.SetState(PetState.NightSleeping);
+                _trayIconService.UpdateSleepState(true);
+            }
+        }
+    }
+
+    private void OnAudioBeatDetected(float peak)
+    {
+        if (!_settingsService.CurrentSettings.DanceToMusic) return;
+        if (Pet.CurrentState == PetState.PomodoroFocus || Pet.CurrentState == PetState.Dragged) return;
+
+        // When music beats are detected, dance!
+        if (Pet.CurrentState != PetState.Dancing)
+        {
+            Pet.SetState(PetState.Dancing);
+            _lastDanceTime = DateTime.Now;
+        }
+        else
+        {
+            _lastDanceTime = DateTime.Now;
+        }
+
+        // Return to idle 1.5 seconds after music stops
+        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1600) };
+        timer.Tick += (s, e) =>
+        {
+            timer.Stop();
+            if ((DateTime.Now - _lastDanceTime).TotalMilliseconds >= 1400 && Pet.CurrentState == PetState.Dancing)
+            {
+                Pet.SetState(PetState.Idle);
+            }
+        };
+        timer.Start();
+    }
+
+    #region Pomodoro Handlers
+
+    private void TogglePomodoro()
+    {
+        if (_pomodoroService.CurrentPhase == PomodoroPhase.Stopped)
+        {
+            _pomodoroService.StartFocus();
+        }
+        else
+        {
+            _pomodoroService.Stop();
+        }
+    }
+
+    private void OnPomodoroTick(TimeSpan remaining, PomodoroPhase phase)
+    {
+        string phaseName = phase == PomodoroPhase.Focus ? "🎯 Focus" : "☕ Break";
+        string timeStr = $"{phaseName}: {remaining.Minutes:D2}:{remaining.Seconds:D2}";
+        _trayIconService.UpdatePomodoroState(true);
+    }
+
+    private void OnPomodoroPhaseChanged(PomodoroPhase phase)
+    {
+        switch (phase)
+        {
+            case PomodoroPhase.Focus:
+                WakeUp();
+                Pet.SetState(PetState.PomodoroFocus);
+                _soundService.PlayChime();
+                SpeechBubble.ShowMessage("পোমোডোরো শুরু! শান্তভাবে মনোযোগ দাও 🎯 👓", "🍅", "Pomodoro Focus", 6);
+                _trayIconService.UpdatePomodoroState(true);
+                break;
+
+            case PomodoroPhase.ShortBreak:
+            case PomodoroPhase.LongBreak:
+                Pet.SetState(PetState.PomodoroBreak);
+                _soundService.PlayTrill();
+                _statsService.LogPomodoro();
+                _settingsService.CurrentSettings.FriendshipXP += 50;
+                _settingsService.SaveSettings(_settingsService.CurrentSettings);
+
+                SpeechBubble.ShowMessage("🎉 ফোকাস শেষ! ডানা ঝাপটে ৫ মিনিট বিশ্রাম নাও! (+50 XP)", "🥳", "Break Time!", 8);
+                break;
+
+            case PomodoroPhase.Stopped:
+                Pet.SetState(PetState.Idle);
+                _trayIconService.UpdatePomodoroState(false);
+                break;
+        }
+    }
+
+    #endregion
+
+    #region AI & Ask Parot
+
+    private async void OnQuestionAsked(string query)
+    {
+        SpeechBubble.ShowMessage("টিয়া পাখি ভাবছে... 🤔", "🦜", "Parot AI", 0);
+        Pet.SetState(PetState.CuriousHeadTilt);
+
+        var answer = await _voiceMimicService.AskParotAsync(query, _settingsService.CurrentSettings.GeminiApiKey);
+
+        SpeechBubble.ShowMessage(answer, "🦜", "Parot", 8);
+        Pet.SetState(PetState.Speaking);
+
+        if (_settingsService.CurrentSettings.VoiceMimicEnabled)
+        {
+            _voiceMimicService.Speak(answer);
+        }
+    }
+
+    private void OnWaterLogged()
+    {
+        _statsService.LogWaterGlass();
+        _settingsService.CurrentSettings.FriendshipXP += 15;
+        _settingsService.SaveSettings(_settingsService.CurrentSettings);
+        _soundService.PlayDoubleChirp();
+        Pet.AnimateHearts();
+    }
+
+    #endregion
+
+    #region Tag Mini-Game
+
+    private void StartPlayTag()
+    {
+        WakeUp();
+        _isPlayingTag = true;
+        Pet.SetState(PetState.FlappingWings);
+        _soundService.PlayTrill();
+        SpeechBubble.ShowMessage("মাউস সরাও! দেখি কে কাকে ধরতে পারে! 🏃🦜", "🎮", "Play Tag!", 4);
+    }
+
+    #endregion
+
+    #region Dragging & Interactions
 
     private void Pet_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
@@ -232,7 +410,7 @@ public partial class MainWindow : Window
         _dragStartWindowPos = new Point(Left, Top);
         _lastInteractionTime = DateTime.Now;
 
-        if (Pet.CurrentState == PetState.Sleeping)
+        if (Pet.CurrentState == PetState.Sleeping || Pet.CurrentState == PetState.NightSleeping)
         {
             WakeUp();
             return;
@@ -278,16 +456,23 @@ public partial class MainWindow : Window
         }
         else
         {
-            // Simple single click!
             OnPetSingleClicked();
         }
     }
 
     private void Pet_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
     {
-        MenuSleepWake.Header = Pet.CurrentState == PetState.Sleeping
+        MenuSleepWake.Header = (Pet.CurrentState == PetState.Sleeping || Pet.CurrentState == PetState.NightSleeping)
             ? "☀️ জেগে ওঠো (Wake Up)"
             : "💤 ঘুমাতে যাও (Go to Sleep)";
+
+        MenuPomodoro.Header = _pomodoroService.CurrentPhase == PomodoroPhase.Stopped
+            ? "🍅 পোমোডোরো শুরু করুন (Start Focus)"
+            : "🍅 পোমোডোরো বন্ধ করুন (Stop Focus)";
+
+        MenuPerchMode.Header = _settingsService.CurrentSettings.PerchMode == "ActiveWindow"
+            ? "🖥️ ডেস্কটপে ফিরে এসো (Perch on Desktop)"
+            : "🪟 উইন্ডোর ওপরে বসো (Perch on Active Window)";
 
         PetContextMenu.IsOpen = true;
     }
@@ -296,16 +481,13 @@ public partial class MainWindow : Window
     {
         var workArea = SystemParameters.WorkArea;
 
-        // Snap to bottom if dropped near taskbar / screen bottom
         if (Top > workArea.Bottom - Height - 70)
         {
             Top = workArea.Bottom - Height;
         }
 
-        // Clamp inside screen bounds horizontally
         Left = Math.Clamp(Left, workArea.Left, workArea.Right - Width);
 
-        // Save position
         _settingsService.CurrentSettings.LastPosX = Left;
         _settingsService.CurrentSettings.LastPosY = Top;
         _settingsService.SaveSettings(_settingsService.CurrentSettings);
@@ -319,7 +501,7 @@ public partial class MainWindow : Window
     {
         _lastInteractionTime = DateTime.Now;
 
-        if (Pet.CurrentState == PetState.Sleeping)
+        if (Pet.CurrentState == PetState.Sleeping || Pet.CurrentState == PetState.NightSleeping)
         {
             WakeUp();
         }
@@ -327,8 +509,10 @@ public partial class MainWindow : Window
         {
             Pet.SetState(PetState.Happy);
             _soundService.PlayDoubleChirp();
+            _statsService.LogPet();
+            _settingsService.CurrentSettings.FriendshipXP += 5;
+            _settingsService.SaveSettings(_settingsService.CurrentSettings);
 
-            // After a moment return to idle
             var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1200) };
             timer.Tick += (s, e) =>
             {
@@ -345,7 +529,7 @@ public partial class MainWindow : Window
     private void OnPetDoubleClicked()
     {
         _lastInteractionTime = DateTime.Now;
-        if (Pet.CurrentState == PetState.Sleeping)
+        if (Pet.CurrentState == PetState.Sleeping || Pet.CurrentState == PetState.NightSleeping)
         {
             WakeUp();
             return;
@@ -359,7 +543,7 @@ public partial class MainWindow : Window
 
     #endregion
 
-    #region State Controls (Sleep, Wake, Feed)
+    #region State Controls
 
     public void WakeUp()
     {
@@ -375,7 +559,16 @@ public partial class MainWindow : Window
 
     public void PutToSleep()
     {
-        Pet.SetState(PetState.Sleeping);
+        int hour = DateTime.Now.Hour;
+        if (_settingsService.CurrentSettings.NightModeAuto && (hour >= 22 || hour < 6))
+        {
+            Pet.SetState(PetState.NightSleeping);
+        }
+        else
+        {
+            Pet.SetState(PetState.Sleeping);
+        }
+
         _trayIconService.UpdateSleepState(true);
         _soundService.PlaySnore();
         SpeechBubble.HideBubble();
@@ -383,7 +576,7 @@ public partial class MainWindow : Window
 
     public void ToggleSleepWake()
     {
-        if (Pet.CurrentState == PetState.Sleeping)
+        if (Pet.CurrentState == PetState.Sleeping || Pet.CurrentState == PetState.NightSleeping)
         {
             WakeUp();
         }
@@ -398,6 +591,10 @@ public partial class MainWindow : Window
         WakeUp();
         Pet.SetState(PetState.Eating);
         _soundService.PlayMunch();
+        _statsService.LogTreat();
+        _settingsService.CurrentSettings.FriendshipXP += 10;
+        _settingsService.SaveSettings(_settingsService.CurrentSettings);
+
         var treatQuote = Dialogues.GetTreatDialogue(_settingsService.CurrentSettings.Language);
         SpeechBubble.ShowMessage(treatQuote, "🌶️", "Parot Treat", 6);
     }
@@ -407,17 +604,66 @@ public partial class MainWindow : Window
         WakeUp();
         Pet.SetState(PetState.Eating);
         _soundService.PlayMunch();
+        _statsService.LogTreat();
+        _settingsService.CurrentSettings.FriendshipXP += 10;
+        _settingsService.SaveSettings(_settingsService.CurrentSettings);
+
         var treatQuote = Dialogues.GetTreatDialogue(_settingsService.CurrentSettings.Language);
         SpeechBubble.ShowMessage(treatQuote, "🌻", "Parot Treat", 6);
     }
 
+    private void TogglePerchMode()
+    {
+        var s = _settingsService.CurrentSettings;
+        s.PerchMode = s.PerchMode == "ActiveWindow" ? "Desktop" : "ActiveWindow";
+        _settingsService.SaveSettings(s);
+        ApplySettings(s);
+
+        string modeName = s.PerchMode == "ActiveWindow" ? "সক্রিয় উইন্ডোর উপরে" : "ডেস্কটপ টাস্কবারে";
+        SpeechBubble.ShowMessage($"বসার স্থান পরিবর্তন: {modeName} 🪟", "🪟", "Perch Mode", 4);
+    }
+
+    private void PerformRandomHop()
+    {
+        var workArea = SystemParameters.WorkArea;
+        bool isAtBottom = Math.Abs(Top - (workArea.Bottom - Height)) < 80;
+        if (!isAtBottom) return;
+
+        bool hopLeft = _random.Next(2) == 0;
+        double hopDistance = _random.Next(35, 75);
+
+        if (hopLeft && (Left - hopDistance) < workArea.Left + 20) hopLeft = false;
+        else if (!hopLeft && (Left + hopDistance) > workArea.Right - Width - 20) hopLeft = true;
+
+        double targetLeft = hopLeft ? Left - hopDistance : Left + hopDistance;
+        Pet.SetFacing(hopLeft);
+        Pet.SetState(PetState.Hopping);
+
+        var moveAnim = new DoubleAnimation
+        {
+            To = targetLeft,
+            Duration = TimeSpan.FromMilliseconds(300),
+            EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
+        };
+
+        moveAnim.Completed += (s, e) =>
+        {
+            Pet.SetState(PetState.Idle);
+            _settingsService.CurrentSettings.LastPosX = Left;
+            _settingsService.CurrentSettings.LastPosY = Top;
+        };
+
+        BeginAnimation(LeftProperty, moveAnim);
+        _soundService.PlayChirp();
+    }
+
     #endregion
 
-    #region Reminders Handling
+    #region Reminders
 
     private void OnReminderTriggered(object? sender, ReminderEventArgs e)
     {
-        if (Pet.CurrentState == PetState.Sleeping)
+        if (Pet.CurrentState == PetState.Sleeping || Pet.CurrentState == PetState.NightSleeping)
         {
             Pet.SetState(PetState.Idle);
             _trayIconService.UpdateSleepState(false);
@@ -436,10 +682,16 @@ public partial class MainWindow : Window
             Pet.SetState(PetState.Happy);
             Pet.AnimateHearts();
             _soundService.PlayTrill();
+
+            if (type == ReminderType.ScreenBreak)
+            {
+                _statsService.LogEyeBreak();
+                _settingsService.CurrentSettings.FriendshipXP += 20;
+                _settingsService.SaveSettings(_settingsService.CurrentSettings);
+            }
         }
         else
         {
-            // Snooze for 5 minutes
             _reminderService.Snooze(type, 5);
             _soundService.PlayChirp();
             SpeechBubble.ShowMessage("৫ মিনিটের জন্য মনে করিয়ে দেব! ⏳", "⏳", "Snoozed", 3);
@@ -448,7 +700,27 @@ public partial class MainWindow : Window
 
     #endregion
 
-    #region Window & Tray Actions
+    #region Window & Dialog Openers
+
+    private void OpenSettingsWindow()
+    {
+        var settingsWin = new SettingsWindow(_settingsService, _soundService, _statsService)
+        {
+            Owner = this
+        };
+        settingsWin.FeedTreatRequested += FeedChiliTreat;
+        settingsWin.OpenDailyReportRequested += OpenDailyReportWindow;
+        settingsWin.ShowDialog();
+    }
+
+    private void OpenDailyReportWindow()
+    {
+        var reportWin = new DailyReportWindow(_statsService, _settingsService.CurrentSettings)
+        {
+            Owner = this
+        };
+        reportWin.ShowDialog();
+    }
 
     private void ToggleVisibility()
     {
@@ -476,26 +748,19 @@ public partial class MainWindow : Window
         _trayIconService.ShowNotification("Ghost Mode", $"ক্লিক-থ্রু মোড এখন {status}");
     }
 
-    private void OpenSettingsWindow()
-    {
-        var settingsWin = new SettingsWindow(_settingsService, _soundService)
-        {
-            Owner = this
-        };
-        settingsWin.FeedTreatRequested += FeedChiliTreat;
-        settingsWin.TestReminderRequested += () => _reminderService.TriggerBreakNow();
-        settingsWin.ShowDialog();
-    }
-
     private void ExitApplication()
     {
         _loopTimer.Stop();
+        _audioDetectorService.Dispose();
+        _voiceMimicService.Dispose();
         _trayIconService.Dispose();
         Application.Current.Shutdown();
     }
 
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
     {
+        _audioDetectorService.Dispose();
+        _voiceMimicService.Dispose();
         _trayIconService.Dispose();
     }
 
@@ -503,50 +768,20 @@ public partial class MainWindow : Window
 
     #region Context Menu Handlers
 
-    private void MenuSquawk_Click(object sender, RoutedEventArgs e)
-    {
-        OnPetDoubleClicked();
-    }
-
-    private void MenuFeedChili_Click(object sender, RoutedEventArgs e)
-    {
-        FeedChiliTreat();
-    }
-
-    private void MenuFeedSeeds_Click(object sender, RoutedEventArgs e)
-    {
-        FeedSunflowerSeeds();
-    }
-
-    private void MenuSleepWake_Click(object sender, RoutedEventArgs e)
-    {
-        ToggleSleepWake();
-    }
-
-    private void MenuEyeBreak_Click(object sender, RoutedEventArgs e)
-    {
-        _reminderService.TriggerBreakNow();
-    }
-
-    private void MenuHydrate_Click(object sender, RoutedEventArgs e)
-    {
-        _reminderService.TriggerHydrationNow();
-    }
-
-    private void MenuGhostMode_Click(object sender, RoutedEventArgs e)
-    {
-        ToggleGhostMode();
-    }
-
-    private void MenuSettings_Click(object sender, RoutedEventArgs e)
-    {
-        OpenSettingsWindow();
-    }
-
-    private void MenuExit_Click(object sender, RoutedEventArgs e)
-    {
-        ExitApplication();
-    }
+    private void MenuPomodoro_Click(object sender, RoutedEventArgs e) => TogglePomodoro();
+    private void MenuAskParot_Click(object sender, RoutedEventArgs e) => SpeechBubble.PromptAskParot();
+    private void MenuDailyReport_Click(object sender, RoutedEventArgs e) => OpenDailyReportWindow();
+    private void MenuPerchMode_Click(object sender, RoutedEventArgs e) => TogglePerchMode();
+    private void MenuPlayTag_Click(object sender, RoutedEventArgs e) => StartPlayTag();
+    private void MenuSquawk_Click(object sender, RoutedEventArgs e) => OnPetDoubleClicked();
+    private void MenuFeedChili_Click(object sender, RoutedEventArgs e) => FeedChiliTreat();
+    private void MenuFeedSeeds_Click(object sender, RoutedEventArgs e) => FeedSunflowerSeeds();
+    private void MenuSleepWake_Click(object sender, RoutedEventArgs e) => ToggleSleepWake();
+    private void MenuEyeBreak_Click(object sender, RoutedEventArgs e) => _reminderService.TriggerBreakNow();
+    private void MenuHydrate_Click(object sender, RoutedEventArgs e) => _reminderService.TriggerHydrationNow();
+    private void MenuGhostMode_Click(object sender, RoutedEventArgs e) => ToggleGhostMode();
+    private void MenuSettings_Click(object sender, RoutedEventArgs e) => OpenSettingsWindow();
+    private void MenuExit_Click(object sender, RoutedEventArgs e) => ExitApplication();
 
     #endregion
 }

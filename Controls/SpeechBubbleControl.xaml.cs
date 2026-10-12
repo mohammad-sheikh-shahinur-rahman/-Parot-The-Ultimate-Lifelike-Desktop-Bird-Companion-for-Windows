@@ -1,6 +1,7 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using Parot.Models;
@@ -15,6 +16,8 @@ public partial class SpeechBubbleControl : UserControl
 
     public event Action<ReminderType, bool>? ReminderActionTaken; // bool: true = Done, false = Snoozed
     public event Action? BubbleClosed;
+    public event Action<string>? QuestionAsked;
+    public event Action? WaterLogged;
 
     public SpeechBubbleControl()
     {
@@ -31,6 +34,8 @@ public partial class SpeechBubbleControl : UserControl
         TxtTitle.Text = title;
         TxtMessage.Text = message;
         ActionPanel.Visibility = Visibility.Collapsed;
+        AskParotPanel.Visibility = Visibility.Collapsed;
+        BtnLogWater.Visibility = Visibility.Collapsed;
 
         Appear();
 
@@ -54,6 +59,7 @@ public partial class SpeechBubbleControl : UserControl
             ReminderType.ScreenBreak => "👁️",
             ReminderType.Hydration => "💧",
             ReminderType.Posture => "🧘",
+            ReminderType.PomodoroAlert => "🍅",
             _ => "🦜"
         };
 
@@ -62,6 +68,7 @@ public partial class SpeechBubbleControl : UserControl
             ReminderType.ScreenBreak => "চোখের বিশ্রাম (20-20-20)",
             ReminderType.Hydration => "পানি খাওয়ার সময় (Hydrate)",
             ReminderType.Posture => "শরীর সোজা করার সময় (Posture)",
+            ReminderType.PomodoroAlert => "পোমোডোরো সেশন (Pomodoro)",
             _ => "Parot Reminder"
         };
 
@@ -69,13 +76,32 @@ public partial class SpeechBubbleControl : UserControl
         TxtTitle.Text = title;
         TxtMessage.Text = message;
         ActionPanel.Visibility = Visibility.Visible;
+        AskParotPanel.Visibility = Visibility.Collapsed;
+
+        BtnLogWater.Visibility = (type == ReminderType.Hydration) ? Visibility.Visible : Visibility.Collapsed;
 
         Appear();
 
-        // Stays up longer for reminders (40 seconds) if not interacted with
         _autoHideTimer.Interval = TimeSpan.FromSeconds(40);
         _autoHideTimer.Stop();
         _autoHideTimer.Start();
+    }
+
+    public void PromptAskParot()
+    {
+        _currentReminderType = null;
+        TxtIcon.Text = "✨";
+        TxtTitle.Text = "Ask Parot (এআই বাডি)";
+        TxtMessage.Text = "আমাকে যেকোনো প্রশ্ন করো অথবা বাংলায় অনুবাদ করতে বলো:";
+        ActionPanel.Visibility = Visibility.Collapsed;
+        AskParotPanel.Visibility = Visibility.Visible;
+        BtnLogWater.Visibility = Visibility.Collapsed;
+
+        TxtAskInput.Text = "";
+        Appear();
+
+        _autoHideTimer.Stop(); // Stays until user sends or closes
+        TxtAskInput.Focus();
     }
 
     private void Appear()
@@ -137,5 +163,34 @@ public partial class SpeechBubbleControl : UserControl
             ReminderActionTaken?.Invoke(_currentReminderType.Value, false);
         }
         HideBubble();
+    }
+
+    private void BtnLogWater_Click(object sender, RoutedEventArgs e)
+    {
+        WaterLogged?.Invoke();
+        ShowMessage("এক গ্লাস পানি পান রেকর্ড করা হয়েছে! 💧 (+15 XP)", "💧", "Hydrated!", 4);
+    }
+
+    private void BtnSendAsk_Click(object sender, RoutedEventArgs e)
+    {
+        SubmitQuestion();
+    }
+
+    private void TxtAskInput_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key == System.Windows.Input.Key.Enter)
+        {
+            SubmitQuestion();
+        }
+    }
+
+    private void SubmitQuestion()
+    {
+        var query = TxtAskInput.Text?.Trim();
+        if (!string.IsNullOrWhiteSpace(query))
+        {
+            AskParotPanel.Visibility = Visibility.Collapsed;
+            QuestionAsked?.Invoke(query);
+        }
     }
 }

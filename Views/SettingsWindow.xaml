@@ -4,15 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Parot - Settings &amp; Wellness Reminders"
-        Height="620" Width="480"
+        Title="Parot - Settings &amp; Customization"
+        Height="680" Width="500"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         Background="#F8FAFC"
         FontFamily="Segoe UI, Vrinda, Nirmala UI">
     
     <Window.Resources>
-        <!-- Modern Card Style -->
         <Style x:Key="CardBorder" TargetType="Border">
             <Setter Property="Background" Value="#FFFFFF"/>
             <Setter Property="BorderBrush" Value="#E2E8F0"/>
@@ -27,7 +26,6 @@
             </Setter>
         </Style>
 
-        <!-- Primary Action Button -->
         <Style x:Key="PrimaryButton" TargetType="Button">
             <Setter Property="Background" Value="#10B981"/>
             <Setter Property="Foreground" Value="#FFFFFF"/>
@@ -52,7 +50,6 @@
             </Style.Triggers>
         </Style>
 
-        <!-- Secondary Button -->
         <Style x:Key="SecondaryButton" TargetType="Button">
             <Setter Property="Background" Value="#F1F5F9"/>
             <Setter Property="Foreground" Value="#334155"/>
@@ -97,21 +94,132 @@
             </Border>
 
             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                <TextBlock Text="Parot Settings" FontSize="18" FontWeight="Bold" Foreground="#0F172A"/>
-                <TextBlock Text="ডেস্কটপ বাডি কনফিগারেশন ও হেলথ রিমাইন্ডার" FontSize="12" Foreground="#64748B"/>
+                <TextBlock Text="Parot Settings &amp; Studio" FontSize="18" FontWeight="Bold" Foreground="#0F172A"/>
+                <TextBlock Text="ডেস্কটপ বাডি, স্কিন, ড্যান্স ও ফোকাস কন্ট্রোল" FontSize="12" Foreground="#64748B"/>
             </StackPanel>
         </Grid>
 
         <!-- Scrollable Body -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,-8,0" Padding="0,0,8,0">
             <StackPanel>
-                <!-- 1. Pet Appearance & Behavior Card -->
+                <!-- 1. Bird Skins & Accessories Card (Feature 5) -->
+                <Border Style="{StaticResource CardBorder}">
+                    <StackPanel>
+                        <TextBlock Text="🎨 পাখির প্রজাতি ও পোশাক (Skins &amp; Accessories)" FontWeight="Bold" FontSize="13" Foreground="#059669" Margin="0,0,0,10"/>
+
+                        <!-- Skin Selection -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="পাখির প্রজাতি (Bird Species):" FontSize="12" VerticalAlignment="Center"/>
+                            <ComboBox Grid.Column="1" x:Name="CmbSkin" Width="170" FontSize="12">
+                                <ComboBoxItem Content="🟢 সবুজ দেশি টিয়া (Parakeet)"/>
+                                <ComboBoxItem Content="🟡 হলুদ ককাটেল (Cockatiel)"/>
+                                <ComboBoxItem Content="🔵 নীল-হলুদ ম্যাকাও (Macaw)"/>
+                            </ComboBox>
+                        </Grid>
+
+                        <!-- Accessories Selection -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="সাজসজ্জা / পোশাক (Accessories):" FontSize="12" VerticalAlignment="Center"/>
+                            <ComboBox Grid.Column="1" x:Name="CmbAccessory" Width="170" FontSize="12">
+                                <ComboBoxItem Content="কোনোটি নয় (None)"/>
+                                <ComboBoxItem Content="👓 পড়ার চশমা (Glasses)"/>
+                                <ComboBoxItem Content="🕶️ সানগ্লাস (Sunglasses)"/>
+                                <ComboBoxItem Content="🧣 শীতের মাফলার (Scarf)"/>
+                                <ComboBoxItem Content="🎩 টপ হ্যাট (Top Hat)"/>
+                                <ComboBoxItem Content="🥳 উৎসবের টুপি (Party Hat)"/>
+                                <ComboBoxItem Content="☂️ ছাতা (Umbrella)"/>
+                            </ComboBox>
+                        </Grid>
+
+                        <!-- Perch Mode Selection (Feature 4) -->
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="বসার স্থান (Perch Position):" FontSize="12" VerticalAlignment="Center"/>
+                            <ComboBox Grid.Column="1" x:Name="CmbPerchMode" Width="170" FontSize="12">
+                                <ComboBoxItem Content="🖥️ ডেস্কটপ ও টাস্কবার"/>
+                                <ComboBoxItem Content="🪟 সক্রিয় উইন্ডোর ওপর (Active Window)"/>
+                            </ComboBox>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- 2. Pomodoro & Music Dance Card (Features 1 & 2) -->
+                <Border Style="{StaticResource CardBorder}">
+                    <StackPanel>
+                        <TextBlock Text="⏱️ পোমোডোরো ও মিউজিক ড্যান্স (Focus &amp; Dance)" FontWeight="Bold" FontSize="13" Foreground="#059669" Margin="0,0,0,10"/>
+
+                        <!-- Pomodoro Focus Interval -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="পোমোডোরো ফোকাস পর্ব:" FontSize="12" VerticalAlignment="Center"/>
+                            <ComboBox Grid.Column="1" x:Name="CmbPomodoroFocus" Width="120" FontSize="12">
+                                <ComboBoxItem Content="২০ মিনিট"/>
+                                <ComboBoxItem Content="২৫ মিনিট" IsSelected="True"/>
+                                <ComboBoxItem Content="৩০ মিনিট"/>
+                                <ComboBoxItem Content="৪৫ মিনিট"/>
+                                <ComboBoxItem Content="৫০ মিনিট"/>
+                            </ComboBox>
+                        </Grid>
+
+                        <!-- Pomodoro Break Interval -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="পোমোডোরো বিরতি পর্ব:" FontSize="12" VerticalAlignment="Center"/>
+                            <ComboBox Grid.Column="1" x:Name="CmbPomodoroBreak" Width="120" FontSize="12">
+                                <ComboBoxItem Content="৩ মিনিট"/>
+                                <ComboBoxItem Content="৫ মিনিট" IsSelected="True"/>
+                                <ComboBoxItem Content="১০ মিনিট"/>
+                            </ComboBox>
+                        </Grid>
+
+                        <!-- Dance to Music Toggle -->
+                        <CheckBox x:Name="ChkDanceToMusic" Content="🎶 গান বাজলে তালে তালে নাচবে (Beat-Sync Headbanging)" IsChecked="True" FontSize="12" Margin="0,0,0,6"/>
+                        <!-- Night Mode Toggle -->
+                        <CheckBox x:Name="ChkNightModeAuto" Content="🌙 রাত ১০টার পর ঘুমানোর ক্যাপ পরবে (Night Mode Auto)" IsChecked="True" FontSize="12" Margin="0,0,0,4"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 3. AI Assistant & Gemini (Feature 3) -->
+                <Border Style="{StaticResource CardBorder}">
+                    <StackPanel>
+                        <TextBlock Text="🤖 এআই ও ভয়েস (Gemini AI &amp; Voice Mimic)" FontWeight="Bold" FontSize="13" Foreground="#059669" Margin="0,0,0,10"/>
+
+                        <CheckBox x:Name="ChkVoiceMimic" Content="টিয়া পাখির কণ্ঠে কথা বলা সক্রিয় রাখুন (Voice Mimic)" IsChecked="True" FontSize="12" Margin="0,0,0,8"/>
+
+                        <TextBlock Text="Google Gemini API Key (ঐচ্ছিক — অনলাইন এআই চ্যাটের জন্য):" FontSize="11" Foreground="#64748B" Margin="0,0,0,4"/>
+                        <TextBox x:Name="TxtGeminiKey" FontSize="11" Padding="6,4" Margin="0,0,0,4">
+                            <TextBox.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="6"/>
+                                </Style>
+                            </TextBox.Resources>
+                        </TextBox>
+                    </StackPanel>
+                </Border>
+
+                <!-- 4. Companion Size & Behavior Card -->
                 <Border Style="{StaticResource CardBorder}">
                     <StackPanel>
                         <TextBlock Text="🦜 পাখির আকার ও আচরণ (Pet Behavior)" FontWeight="Bold" FontSize="13" Foreground="#059669" Margin="0,0,0,10"/>
 
-                        <!-- Scale Slider -->
-                        <Grid Margin="0,0,0,10">
+                        <Grid Margin="0,0,0,8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
@@ -120,140 +228,27 @@
                             <TextBlock Grid.Column="1" x:Name="TxtScaleVal" Text="100%" FontWeight="SemiBold" FontSize="12" Foreground="#059669"/>
                         </Grid>
                         <Slider x:Name="SliderScale" Minimum="0.7" Maximum="1.6" Value="1.0" SmallChange="0.1" LargeChange="0.2"
-                                TickFrequency="0.1" IsSnapToTickEnabled="True" ValueChanged="SliderScale_ValueChanged" Margin="0,0,0,12"/>
+                                TickFrequency="0.1" IsSnapToTickEnabled="True" ValueChanged="SliderScale_ValueChanged" Margin="0,0,0,10"/>
 
-                        <!-- Toggles -->
                         <CheckBox x:Name="ChkAlwaysOnTop" Content="সব উইন্ডোর উপরে থাকবে (Always on Top)" IsChecked="True" Margin="0,0,0,8" FontSize="12"/>
                         <CheckBox x:Name="ChkAllowWalking" Content="ডেস্কটপে মাঝে মাঝে হাঁটাহাঁটি করবে (Allow Roaming)" IsChecked="True" Margin="0,0,0,8" FontSize="12"/>
-                        <CheckBox x:Name="ChkGhostMode" Content="ক্লিক-থ্রু মোড / Ghost Mode (ক্লিক পেছনের অ্যাপে যাবে)" IsChecked="False" Margin="0,0,0,8" FontSize="12"/>
-
-                        <!-- Idle Sleep Selection -->
-                        <Grid Margin="0,4,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="নিষ্ক্রিয় থাকলে ঘুমাবে (Auto-Sleep):" FontSize="12" VerticalAlignment="Center"/>
-                            <ComboBox Grid.Column="1" x:Name="CmbAutoSleep" Width="110" FontSize="12">
-                                <ComboBoxItem Content="২ মিনিট"/>
-                                <ComboBoxItem Content="৩ মিনিট" IsSelected="True"/>
-                                <ComboBoxItem Content="৫ মিনিট"/>
-                                <ComboBoxItem Content="১০ মিনিট"/>
-                                <ComboBoxItem Content="কখনও নয়"/>
-                            </ComboBox>
-                        </Grid>
+                        <CheckBox x:Name="ChkGhostMode" Content="ক্লিক-থ্রু মোড / Ghost Mode" IsChecked="False" Margin="0,0,0,8" FontSize="12"/>
                     </StackPanel>
                 </Border>
 
-                <!-- 2. Sound & Voice Card -->
+                <!-- 5. Sound & Reminders Card -->
                 <Border Style="{StaticResource CardBorder}">
                     <StackPanel>
-                        <TextBlock Text="🔊 শব্দ ও কিচিরমিচির (Audio &amp; Chirps)" FontWeight="Bold" FontSize="13" Foreground="#059669" Margin="0,0,0,10"/>
+                        <TextBlock Text="🔊 সাউন্ড ও হেলথ রিমাইন্ডার (Audio &amp; Wellness)" FontWeight="Bold" FontSize="13" Foreground="#059669" Margin="0,0,0,10"/>
 
-                        <CheckBox x:Name="ChkSoundEnabled" Content="পাখির ডাক ও সাউন্ড চালু রাখুন (Sound Effects)" IsChecked="True" Margin="0,0,0,10" FontSize="12"/>
-
-                        <Grid Margin="0,0,0,6">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Volume (শব্দের মাত্রা):" FontSize="12" Foreground="#334155"/>
-                            <TextBlock Grid.Column="1" x:Name="TxtVolumeVal" Text="80%" FontWeight="SemiBold" FontSize="12" Foreground="#059669"/>
-                        </Grid>
-                        <Slider x:Name="SliderVolume" Minimum="0" Maximum="100" Value="80" ValueChanged="SliderVolume_ValueChanged" Margin="0,0,0,10"/>
-
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Content="🔊 Test Chirp" Style="{StaticResource SecondaryButton}" Click="BtnTestSound_Click"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-
-                <!-- 3. Screen-Time & Wellness Reminders -->
-                <Border Style="{StaticResource CardBorder}">
-                    <StackPanel>
-                        <TextBlock Text="👁️ স্ক্রিন-টাইম ও স্বাস্থ্য রিমাইন্ডার (Wellness)" FontWeight="Bold" FontSize="13" Foreground="#059669" Margin="0,0,0,10"/>
-
-                        <!-- 20-20-20 Break -->
-                        <Grid Margin="0,0,0,10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <CheckBox x:Name="ChkScreenBreak" Content="২০-২০-২০ চোখের বিশ্রাম (Eye Rest)" IsChecked="True" FontWeight="SemiBold" FontSize="12"/>
-                                <TextBlock Text="প্রতি নির্দিষ্ট সময়ে ২০ সেকেন্ড দূরের দিকে তাকান" FontSize="11" Foreground="#64748B" Margin="20,2,0,0"/>
-                            </StackPanel>
-                            <ComboBox Grid.Column="1" x:Name="CmbScreenBreakInterval" Width="100" FontSize="12">
-                                <ComboBoxItem Content="১৫ মিনিট"/>
-                                <ComboBoxItem Content="২০ মিনিট"/>
-                                <ComboBoxItem Content="২৫ মিনিট" IsSelected="True"/>
-                                <ComboBoxItem Content="৩০ মিনিট"/>
-                                <ComboBoxItem Content="৪৫ মিনিট"/>
-                                <ComboBoxItem Content="৬০ মিনিট"/>
-                            </ComboBox>
-                        </Grid>
-
-                        <!-- Hydration -->
-                        <Grid Margin="0,0,0,10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <CheckBox x:Name="ChkHydration" Content="পানি পানের রিমাইন্ডার (Hydration)" IsChecked="True" FontWeight="SemiBold" FontSize="12"/>
-                                <TextBlock Text="সতেজ থাকতে পানি খাওয়ার কথা মনে করিয়ে দেবে" FontSize="11" Foreground="#64748B" Margin="20,2,0,0"/>
-                            </StackPanel>
-                            <ComboBox Grid.Column="1" x:Name="CmbHydrationInterval" Width="100" FontSize="12">
-                                <ComboBoxItem Content="৩০ মিনিট"/>
-                                <ComboBoxItem Content="৪৫ মিনিট" IsSelected="True"/>
-                                <ComboBoxItem Content="৬০ মিনিট"/>
-                                <ComboBoxItem Content="৯০ মিনিট"/>
-                            </ComboBox>
-                        </Grid>
-
-                        <!-- Posture & Stretch -->
-                        <Grid Margin="0,0,0,8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <CheckBox x:Name="ChkPosture" Content="সোজা হয়ে বসা ও স্ট্রেচ (Posture)" IsChecked="True" FontWeight="SemiBold" FontSize="12"/>
-                                <TextBlock Text="পিঠ সোজা ও কাঁধ রিল্যাক্স করতে পরামর্শ দেবে" FontSize="11" Foreground="#64748B" Margin="20,2,0,0"/>
-                            </StackPanel>
-                            <ComboBox Grid.Column="1" x:Name="CmbPostureInterval" Width="100" FontSize="12">
-                                <ComboBoxItem Content="৪৫ মিনিট"/>
-                                <ComboBoxItem Content="৬০ মিনিট" IsSelected="True"/>
-                                <ComboBoxItem Content="৯০ মিনিট"/>
-                            </ComboBox>
-                        </Grid>
+                        <CheckBox x:Name="ChkSoundEnabled" Content="পাখির ডাক ও সাউন্ড চালু রাখুন" IsChecked="True" Margin="0,0,0,8" FontSize="12"/>
+                        <CheckBox x:Name="ChkScreenBreak" Content="২০-২০-২০ চোখের বিশ্রাম রিমাইন্ডার" IsChecked="True" Margin="0,0,0,8" FontSize="12"/>
+                        <CheckBox x:Name="ChkHydration" Content="পানি পানের রিমাইন্ডার" IsChecked="True" Margin="0,0,0,8" FontSize="12"/>
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,4,0,0">
-                            <Button Content="👁️ Test Reminder Now" Style="{StaticResource SecondaryButton}" Click="BtnTestReminder_Click"/>
+                            <Button Content="📊 View Daily Report" Style="{StaticResource SecondaryButton}" Click="BtnDailyReport_Click" Margin="0,0,6,0"/>
+                            <Button Content="🔊 Test Chirp" Style="{StaticResource SecondaryButton}" Click="BtnTestSound_Click"/>
                         </StackPanel>
-                    </StackPanel>
-                </Border>
-
-                <!-- 4. Language & System Startup Card -->
-                <Border Style="{StaticResource CardBorder}">
-                    <StackPanel>
-                        <TextBlock Text="🌐 ভাষা ও সিস্টেম (System &amp; Language)" FontWeight="Bold" FontSize="13" Foreground="#059669" Margin="0,0,0,10"/>
-
-                        <!-- Language -->
-                        <Grid Margin="0,0,0,10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="ডেস্কটপ বাডির ভাষা (Language):" FontSize="12" VerticalAlignment="Center"/>
-                            <ComboBox Grid.Column="1" x:Name="CmbLanguage" Width="130" FontSize="12">
-                                <ComboBoxItem Content="Bilingual (উভয়ই)" IsSelected="True"/>
-                                <ComboBoxItem Content="বাংলা (Bengali)"/>
-                                <ComboBoxItem Content="English"/>
-                            </ComboBox>
-                        </Grid>
-
-                        <CheckBox x:Name="ChkStartWithWindows" Content="কম্পিউটার চালু হলে Parot স্বয়ংক্রিয়ভাবে চালু হবে (Run on Startup)" Margin="0,0,0,0" FontSize="12"/>
                     </StackPanel>
                 </Border>
             </StackPanel>
@@ -262,7 +257,7 @@
         <!-- Footer Buttons -->
         <Grid Grid.Row="2" Margin="0,14,0,0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                <Button Content="🌶️ Feed Chili Treat" Style="{StaticResource SecondaryButton}" Click="BtnFeedTreat_Click"/>
+                <Button Content="🌶️ Feed Treat" Style="{StaticResource SecondaryButton}" Click="BtnFeedTreat_Click"/>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">

@@ -6,6 +6,9 @@ using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using Parot.Models;
 using UserControl = System.Windows.Controls.UserControl;
+using Color = System.Windows.Media.Color;
+using Point = System.Windows.Point;
+using ColorConverter = System.Windows.Media.ColorConverter;
 
 namespace Parot.Controls;
 
@@ -19,8 +22,11 @@ public partial class ParotPetControl : UserControl
     private readonly Storyboard _hopStoryboard;
     private readonly Storyboard _headTiltStoryboard;
     private readonly Storyboard _chirpStoryboard;
+    private readonly Storyboard _danceStoryboard;
 
     private bool _isFacingLeft = false;
+    private string _currentSkin = "GreenParakeet";
+    private string _currentAccessory = "None";
 
     public PetState CurrentState => _currentState;
 
@@ -33,6 +39,7 @@ public partial class ParotPetControl : UserControl
         _hopStoryboard = (Storyboard)Resources["HopStoryboard"];
         _headTiltStoryboard = (Storyboard)Resources["HeadTiltStoryboard"];
         _chirpStoryboard = (Storyboard)Resources["ChirpStoryboard"];
+        _danceStoryboard = (Storyboard)Resources["DanceStoryboard"];
 
         _breatheStoryboard.Begin();
 
@@ -40,6 +47,100 @@ public partial class ParotPetControl : UserControl
         _blinkTimer.Interval = TimeSpan.FromSeconds(_random.Next(3, 6));
         _blinkTimer.Tick += OnBlinkTimerTick;
         _blinkTimer.Start();
+    }
+
+    public void ApplySkin(string skin)
+    {
+        _currentSkin = skin;
+
+        switch (skin)
+        {
+            case "Cockatiel": // 🟡 Yellow Cockatiel
+                CockatielCrest.Visibility = Visibility.Visible;
+                ParakeetCrest1.Visibility = Visibility.Collapsed;
+                ParakeetCrest2.Visibility = Visibility.Collapsed;
+                NeckRingRed.Visibility = Visibility.Collapsed;
+                NeckRingBlack.Visibility = Visibility.Collapsed;
+
+                CheekBlushLeft.Fill = new SolidColorBrush(Color.FromRgb(249, 115, 22));
+                CheekBlushRight.Fill = new SolidColorBrush(Color.FromRgb(249, 115, 22));
+                CheekBlushLeft.Opacity = 0.9;
+                CheekBlushRight.Opacity = 0.9;
+
+                BodyMainPath.Fill = CreateLinearBrush("#FEF08A", "#FACC15", "#EAB308");
+                HeadBasePath.Fill = CreateLinearBrush("#FEF9C3", "#FDE047", "#FACC15");
+                BellyPath.Fill = CreateRadialBrush("#FEFCE8", "#FEF08A");
+                LeftWing.Fill = new SolidColorBrush(Color.FromRgb(202, 138, 4));
+                RightWing.Fill = CreateLinearBrush("#FACC15", "#EAB308", "#CA8A04");
+                UpperBeak.Fill = CreateLinearBrush("#94A3B8", "#64748B", "#475569");
+                LowerBeak.Fill = new SolidColorBrush(Color.FromRgb(71, 85, 105));
+                TailFeatherPath.Fill = CreateLinearBrush("#EAB308", "#CA8A04", "#A16207");
+                Eyelid.Fill = new SolidColorBrush(Color.FromRgb(250, 204, 21));
+                break;
+
+            case "Macaw": // 🔵 Blue & Gold Macaw
+                CockatielCrest.Visibility = Visibility.Collapsed;
+                ParakeetCrest1.Visibility = Visibility.Visible;
+                ParakeetCrest2.Visibility = Visibility.Visible;
+                ParakeetCrest1.Fill = new SolidColorBrush(Color.FromRgb(29, 78, 216));
+                ParakeetCrest2.Fill = new SolidColorBrush(Color.FromRgb(37, 99, 235));
+                NeckRingRed.Visibility = Visibility.Collapsed;
+                NeckRingBlack.Visibility = Visibility.Visible;
+
+                CheekBlushLeft.Fill = new SolidColorBrush(Color.FromRgb(255, 255, 255));
+                CheekBlushRight.Fill = new SolidColorBrush(Color.FromRgb(255, 255, 255));
+                CheekBlushLeft.Opacity = 0.8;
+                CheekBlushRight.Opacity = 0.8;
+
+                BodyMainPath.Fill = CreateLinearBrush("#2563EB", "#1D4ED8", "#1E40AF");
+                HeadBasePath.Fill = CreateLinearBrush("#60A5FA", "#3B82F6", "#2563EB");
+                BellyPath.Fill = CreateRadialBrush("#FEF08A", "#FBBF24");
+                LeftWing.Fill = new SolidColorBrush(Color.FromRgb(30, 64, 175));
+                RightWing.Fill = CreateLinearBrush("#3B82F6", "#2563EB", "#1D4ED8");
+                UpperBeak.Fill = CreateLinearBrush("#334155", "#1E293B", "#0F172A");
+                LowerBeak.Fill = new SolidColorBrush(Color.FromRgb(15, 23, 42));
+                TailFeatherPath.Fill = CreateLinearBrush("#2563EB", "#1D4ED8", "#0284C7");
+                Eyelid.Fill = new SolidColorBrush(Color.FromRgb(59, 130, 246));
+                break;
+
+            default: // 🟢 Green Parakeet (Rose-ringed)
+                CockatielCrest.Visibility = Visibility.Collapsed;
+                ParakeetCrest1.Visibility = Visibility.Visible;
+                ParakeetCrest2.Visibility = Visibility.Visible;
+                ParakeetCrest1.Fill = new SolidColorBrush(Color.FromRgb(21, 128, 61));
+                ParakeetCrest2.Fill = new SolidColorBrush(Color.FromRgb(34, 197, 94));
+                NeckRingRed.Visibility = Visibility.Visible;
+                NeckRingBlack.Visibility = Visibility.Visible;
+
+                CheekBlushLeft.Fill = new SolidColorBrush(Color.FromRgb(251, 113, 133));
+                CheekBlushRight.Fill = new SolidColorBrush(Color.FromRgb(251, 113, 133));
+                CheekBlushLeft.Opacity = 0.55;
+                CheekBlushRight.Opacity = 0.45;
+
+                BodyMainPath.Fill = CreateLinearBrush("#4ADE80", "#22C55E", "#15803D");
+                HeadBasePath.Fill = CreateLinearBrush("#4ADE80", "#22C55E", "#16A34A");
+                BellyPath.Fill = CreateRadialBrush("#BBF7D0", "#86EFAC");
+                LeftWing.Fill = new SolidColorBrush(Color.FromRgb(21, 128, 61));
+                RightWing.Fill = CreateLinearBrush("#22C55E", "#16A34A", "#15803D");
+                UpperBeak.Fill = CreateLinearBrush("#F97316", "#EA580C", "#DC2626");
+                LowerBeak.Fill = new SolidColorBrush(Color.FromRgb(194, 65, 12));
+                TailFeatherPath.Fill = CreateLinearBrush("#059669", "#0D9488", "#0284C7");
+                Eyelid.Fill = new SolidColorBrush(Color.FromRgb(34, 197, 94));
+                break;
+        }
+    }
+
+    public void SetAccessory(string accessory)
+    {
+        _currentAccessory = accessory;
+
+        AccessoryGlasses.Visibility = accessory == "Glasses" ? Visibility.Visible : Visibility.Collapsed;
+        AccessorySunglasses.Visibility = accessory == "Sunglasses" ? Visibility.Visible : Visibility.Collapsed;
+        AccessoryScarf.Visibility = accessory == "Scarf" ? Visibility.Visible : Visibility.Collapsed;
+        AccessoryTopHat.Visibility = accessory == "TopHat" ? Visibility.Visible : Visibility.Collapsed;
+        AccessoryPartyHat.Visibility = accessory == "PartyHat" ? Visibility.Visible : Visibility.Collapsed;
+        AccessoryUmbrella.Visibility = accessory == "Umbrella" ? Visibility.Visible : Visibility.Collapsed;
+        AccessoryNightcap.Visibility = accessory == "Nightcap" ? Visibility.Visible : Visibility.Collapsed;
     }
 
     public void SetFacing(bool faceLeft)
@@ -59,19 +160,12 @@ public partial class ParotPetControl : UserControl
     {
         scale = Math.Clamp(scale, 0.6, 2.0);
         RootScaleTransform.ScaleY = scale;
-        if (!_isFacingLeft)
-        {
-            RootScaleTransform.ScaleX = scale;
-        }
-        else
-        {
-            RootScaleTransform.ScaleX = -scale;
-        }
+        RootScaleTransform.ScaleX = _isFacingLeft ? -scale : scale;
     }
 
     private void OnBlinkTimerTick(object? sender, EventArgs e)
     {
-        if (_currentState == PetState.Sleeping || _currentState == PetState.Happy) return;
+        if (_currentState == PetState.Sleeping || _currentState == PetState.NightSleeping || _currentState == PetState.Happy) return;
 
         TriggerBlink();
         _blinkTimer.Interval = TimeSpan.FromSeconds(_random.Next(3, 7));
@@ -79,7 +173,7 @@ public partial class ParotPetControl : UserControl
 
     public void TriggerBlink()
     {
-        if (_currentState == PetState.Sleeping) return;
+        if (_currentState == PetState.Sleeping || _currentState == PetState.NightSleeping) return;
 
         var blinkAnim = new DoubleAnimationUsingKeyFrames();
         blinkAnim.KeyFrames.Add(new LinearDoubleKeyFrame(0, KeyTime.FromTimeSpan(TimeSpan.Zero)));
@@ -91,9 +185,8 @@ public partial class ParotPetControl : UserControl
 
     public void LookAt(double deltaX, double deltaY)
     {
-        if (_currentState == PetState.Sleeping || _currentState == PetState.Dragged) return;
+        if (_currentState == PetState.Sleeping || _currentState == PetState.NightSleeping || _currentState == PetState.Dragged) return;
 
-        // Smooth pupil tracking within +/- 3 pixels
         double maxOffset = 3.5;
         double angle = Math.Atan2(deltaY, deltaX);
         double dist = Math.Min(Math.Sqrt(deltaX * deltaX + deltaY * deltaY), 300);
@@ -102,7 +195,6 @@ public partial class ParotPetControl : UserControl
         double targetX = Math.Cos(angle) * maxOffset * factor;
         double targetY = Math.Sin(angle) * (maxOffset * 0.7) * factor;
 
-        // Adjust if bird is flipped
         if (_isFacingLeft) targetX = -targetX;
 
         PupilTranslate.X = targetX;
@@ -118,8 +210,32 @@ public partial class ParotPetControl : UserControl
             case PetState.Idle:
                 ShowAwakeEye();
                 _flapStoryboard.Stop();
+                _danceStoryboard.Stop();
                 _breatheStoryboard.SetSpeedRatio(1.0);
                 SleepParticles.Opacity = 0;
+                SetAccessory(_currentAccessory);
+                break;
+
+            case PetState.Dancing:
+                ShowHappyEye();
+                _flapStoryboard.Stop();
+                _danceStoryboard.Begin();
+                AnimateMusicNote();
+                break;
+
+            case PetState.PomodoroFocus:
+                ShowAwakeEye();
+                _flapStoryboard.Stop();
+                _danceStoryboard.Stop();
+                SetAccessory("Glasses"); // Wear reading glasses during Pomodoro!
+                break;
+
+            case PetState.PomodoroBreak:
+                ShowHappyEye();
+                _flapStoryboard.Begin();
+                AnimateHearts();
+                AnimateMusicNote();
+                SetAccessory("PartyHat"); // Celebrate break!
                 break;
 
             case PetState.CuriousHeadTilt:
@@ -135,7 +251,6 @@ public partial class ParotPetControl : UserControl
             case PetState.Dragged:
                 ShowAwakeEye();
                 _flapStoryboard.Begin();
-                // Pull feet up slightly
                 break;
 
             case PetState.Hopping:
@@ -146,13 +261,24 @@ public partial class ParotPetControl : UserControl
             case PetState.Sleeping:
                 ShowSleepEye();
                 _flapStoryboard.Stop();
-                _breatheStoryboard.SetSpeedRatio(0.5); // Slower, deeper breaths
+                _danceStoryboard.Stop();
+                _breatheStoryboard.SetSpeedRatio(0.5);
+                AnimateSleepZzz();
+                break;
+
+            case PetState.NightSleeping:
+                ShowSleepEye();
+                _flapStoryboard.Stop();
+                _danceStoryboard.Stop();
+                _breatheStoryboard.SetSpeedRatio(0.4);
+                SetAccessory("Nightcap");
                 AnimateSleepZzz();
                 break;
 
             case PetState.Happy:
                 ShowHappyEye();
                 _flapStoryboard.Stop();
+                _danceStoryboard.Stop();
                 AnimateHearts();
                 _chirpStoryboard.Begin();
                 break;
@@ -273,5 +399,22 @@ public partial class ParotPetControl : UserControl
 
         TreatTranslate.BeginAnimation(TranslateTransform.YProperty, drop);
         TreatItem.BeginAnimation(OpacityProperty, fade);
+    }
+
+    private static LinearGradientBrush CreateLinearBrush(string c1, string c2, string c3)
+    {
+        var b = new LinearGradientBrush { StartPoint = new Point(0.2, 0), EndPoint = new Point(0.8, 1) };
+        b.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(c1), 0));
+        b.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(c2), 0.5));
+        b.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(c3), 1));
+        return b;
+    }
+
+    private static RadialGradientBrush CreateRadialBrush(string c1, string c2)
+    {
+        var b = new RadialGradientBrush { Center = new Point(0.6, 0.6), RadiusX = 0.6, RadiusY = 0.6 };
+        b.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(c1), 0));
+        b.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(c2), 1));
+        return b;
     }
 }

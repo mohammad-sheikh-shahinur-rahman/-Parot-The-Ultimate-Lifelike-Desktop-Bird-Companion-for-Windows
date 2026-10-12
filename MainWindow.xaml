@@ -18,6 +18,12 @@
 
     <Window.ContextMenu>
         <ContextMenu x:Name="PetContextMenu" FontSize="12">
+            <MenuItem x:Name="MenuPomodoro" Header="🍅 পোমোডোরো শুরু করুন (Start Focus)" Click="MenuPomodoro_Click"/>
+            <MenuItem Header="✨ Ask Parot (এআই বাডি চ্যাট)" Click="MenuAskParot_Click"/>
+            <MenuItem Header="📊 দৈনিক রিপোর্ট (Daily Report)" Click="MenuDailyReport_Click"/>
+            <Separator/>
+            <MenuItem x:Name="MenuPerchMode" Header="🪟 উইন্ডোর ওপরে বসো (Perch on Active Window)" Click="MenuPerchMode_Click"/>
+            <MenuItem Header="🎮 মাউস নিয়ে খেলা (Play Tag with Cursor)" Click="MenuPlayTag_Click"/>
             <MenuItem Header="💬 কথা বলো (Squawk!)" Click="MenuSquawk_Click"/>
             <MenuItem Header="🌶️ ঝাল লঙ্কা খাওয়াও (Feed Chili)" Click="MenuFeedChili_Click"/>
             <MenuItem Header="🌻 সূর্যমুখী বীজ খাওয়াও (Feed Seeds)" Click="MenuFeedSeeds_Click"/>

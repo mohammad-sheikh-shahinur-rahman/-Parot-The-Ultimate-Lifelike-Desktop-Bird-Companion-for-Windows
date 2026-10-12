@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             MaxWidth="260" MinWidth="150"
+             MaxWidth="280" MinWidth="160"
              Opacity="0"
              Visibility="Collapsed">
     <UserControl.Resources>
@@ -109,12 +109,70 @@
                            LineHeight="16"
                            Margin="0,2,0,6"/>
 
-                <!-- Action Buttons (Shown for Reminders) -->
+                <!-- Interactive "Ask Parot" Input (Feature 3) -->
+                <Grid x:Name="AskParotPanel" Margin="0,4,0,4" Visibility="Collapsed">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="TxtAskInput"
+                             FontSize="11"
+                             Padding="6,3"
+                             BorderBrush="#CBD5E1"
+                             BorderThickness="1"
+                             KeyDown="TxtAskInput_KeyDown">
+                        <TextBox.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="6"/>
+                            </Style>
+                        </TextBox.Resources>
+                    </TextBox>
+                    <Button Grid.Column="1"
+                            x:Name="BtnSendAsk"
+                            Content="Ask 🦜"
+                            FontSize="10"
+                            FontWeight="SemiBold"
+                            Background="#10B981"
+                            Foreground="#FFFFFF"
+                            BorderThickness="0"
+                            Padding="6,3"
+                            Margin="4,0,0,0"
+                            Cursor="Hand"
+                            Click="BtnSendAsk_Click">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="6"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </Grid>
+
+                <!-- Action Buttons (Shown for Reminders & Quick Logs) -->
                 <StackPanel x:Name="ActionPanel"
                             Orientation="Horizontal"
                             HorizontalAlignment="Right"
                             Margin="0,4,0,0"
                             Visibility="Collapsed">
+                    <!-- Quick Water Log Button -->
+                    <Button x:Name="BtnLogWater"
+                            Content="+1 💧 পানি"
+                            FontSize="10"
+                            Foreground="#0284C7"
+                            Background="#E0F2FE"
+                            BorderBrush="#BAE6FD"
+                            BorderThickness="1"
+                            Padding="6,3"
+                            Margin="0,0,6,0"
+                            Cursor="Hand"
+                            Visibility="Collapsed"
+                            Click="BtnLogWater_Click">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="6"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+
                     <Button x:Name="BtnSnooze"
                             Content="⏳ ৫ মিনিট (Snooze)"
                             FontSize="10"
@@ -169,7 +227,6 @@
                                   Direction="270"/>
             </Path.Effect>
         </Path>
-        <!-- Overlay small white patch to cover the border join -->
         <Rectangle HorizontalAlignment="Left"
                    VerticalAlignment="Bottom"
                    Margin="31,0,0,0"

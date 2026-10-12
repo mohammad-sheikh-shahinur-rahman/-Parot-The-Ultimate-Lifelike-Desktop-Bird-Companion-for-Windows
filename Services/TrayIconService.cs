@@ -16,12 +16,18 @@ public class TrayIconService : IDisposable
     public event Action? TakeBreakRequested;
     public event Action? DrinkWaterRequested;
     public event Action? FeedTreatRequested;
+    public event Action? PomodoroToggled;
+    public event Action? DailyReportRequested;
+    public event Action? PerchModeToggled;
+    public event Action? AskParotRequested;
     public event Action? GhostModeToggled;
     public event Action? SettingsRequested;
     public event Action? ExitRequested;
 
     private readonly ToolStripMenuItem _itemShowHide;
     private readonly ToolStripMenuItem _itemSleepWake;
+    private readonly ToolStripMenuItem _itemPomodoro;
+    private readonly ToolStripMenuItem _itemPerchMode;
     private readonly ToolStripMenuItem _itemGhost;
 
     public TrayIconService()
@@ -31,10 +37,15 @@ public class TrayIconService : IDisposable
         _itemShowHide = new ToolStripMenuItem("🦜 Hide Parot", null, (s, e) => ShowHideToggled?.Invoke());
         _itemSleepWake = new ToolStripMenuItem("💤 Go to Sleep", null, (s, e) => SleepWakeToggled?.Invoke());
 
+        _itemPomodoro = new ToolStripMenuItem("🍅 Start Pomodoro Focus (25m)", null, (s, e) => PomodoroToggled?.Invoke());
+        var askItem = new ToolStripMenuItem("✨ Ask Parot (AI Chat)", null, (s, e) => AskParotRequested?.Invoke());
+        var reportItem = new ToolStripMenuItem("📊 Daily Wellness Report", null, (s, e) => DailyReportRequested?.Invoke());
+
         var breakItem = new ToolStripMenuItem("👁️ Rest Eyes Now (20-20-20)", null, (s, e) => TakeBreakRequested?.Invoke());
         var waterItem = new ToolStripMenuItem("💧 Drink Water Now", null, (s, e) => DrinkWaterRequested?.Invoke());
         var feedItem = new ToolStripMenuItem("🌶️ Feed Chili Treat", null, (s, e) => FeedTreatRequested?.Invoke());
 
+        _itemPerchMode = new ToolStripMenuItem("🪟 Perch on Active Window", null, (s, e) => PerchModeToggled?.Invoke());
         _itemGhost = new ToolStripMenuItem("👻 Ghost Mode (Click-Through)", null, (s, e) => GhostModeToggled?.Invoke());
 
         var settingsItem = new ToolStripMenuItem("⚙️ Settings...", null, (s, e) => SettingsRequested?.Invoke());
@@ -45,10 +56,15 @@ public class TrayIconService : IDisposable
             _itemShowHide,
             _itemSleepWake,
             new ToolStripSeparator(),
+            _itemPomodoro,
+            askItem,
+            reportItem,
+            new ToolStripSeparator(),
             breakItem,
             waterItem,
             feedItem,
             new ToolStripSeparator(),
+            _itemPerchMode,
             _itemGhost,
             settingsItem,
             new ToolStripSeparator(),
@@ -76,6 +92,16 @@ public class TrayIconService : IDisposable
         _itemSleepWake.Text = isSleeping ? "☀️ Wake Up Parot" : "💤 Put to Sleep";
     }
 
+    public void UpdatePomodoroState(bool isRunning)
+    {
+        _itemPomodoro.Text = isRunning ? "🍅 Stop Pomodoro" : "🍅 Start Pomodoro Focus (25m)";
+    }
+
+    public void UpdatePerchMode(bool onActiveWindow)
+    {
+        _itemPerchMode.Checked = onActiveWindow;
+    }
+
     public void UpdateGhostState(bool isGhost)
     {
         _itemGhost.Checked = isGhost;
@@ -94,38 +120,32 @@ public class TrayIconService : IDisposable
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.Clear(Color.Transparent);
 
-            // Green plumage circle
             using (var brush = new SolidBrush(Color.FromArgb(34, 197, 94)))
             {
                 g.FillEllipse(brush, 4, 6, 22, 22);
             }
 
-            // Lime highlight
             using (var brush = new SolidBrush(Color.FromArgb(134, 239, 172)))
             {
                 g.FillEllipse(brush, 10, 12, 14, 14);
             }
 
-            // Dark eye
             using (var brush = new SolidBrush(Color.FromArgb(15, 23, 42)))
             {
                 g.FillEllipse(brush, 16, 10, 4, 4);
             }
 
-            // Eye highlight
             using (var brush = new SolidBrush(Color.White))
             {
                 g.FillEllipse(brush, 17, 10, 2, 2);
             }
 
-            // Orange beak
             using (var brush = new SolidBrush(Color.FromArgb(249, 115, 22)))
             {
                 Point[] beak = [new Point(24, 13), new Point(31, 16), new Point(23, 20)];
                 g.FillPolygon(brush, beak);
             }
 
-            // Red collar ring
             using (var pen = new Pen(Color.FromArgb(225, 29, 72), 2))
             {
                 g.DrawArc(pen, 8, 16, 14, 10, 30, 120);
