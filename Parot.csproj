@@ -16,7 +16,7 @@
     <AssemblyVersion>1.0.1.0</AssemblyVersion>
     <FileVersion>1.0.1.0</FileVersion>
     <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
-    <RepositoryUrl>https://github.com/mohammad-sheikh-shahinur-rahman/-Parot-The-Ultimate-Lifelike-Desktop-Bird-Companion-for-Windows</RepositoryUrl>
+    <RepositoryUrl>https://github.com/mohammad-sheikh-shahinur-rahman/Parot-The-Ultimate-Lifelike-Desktop-Bird-Companion-for-Windows</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>

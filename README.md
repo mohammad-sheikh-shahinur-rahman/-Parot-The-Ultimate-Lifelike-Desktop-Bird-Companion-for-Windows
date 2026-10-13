@@ -188,8 +188,8 @@ Test coverage includes:
 ### 1. Compile and Run Locally
 ```powershell
 # Clone the repository
-git clone https://github.com/mohammad-sheikh-shahinur-rahman/-Parot-The-Ultimate-Lifelike-Desktop-Bird-Companion-for-Windows.git
-cd -Parot-The-Ultimate-Lifelike-Desktop-Bird-Companion-for-Windows
+git clone https://github.com/mohammad-sheikh-shahinur-rahman/Parot-The-Ultimate-Lifelike-Desktop-Bird-Companion-for-Windows.git
+cd Parot-The-Ultimate-Lifelike-Desktop-Bird-Companion-for-Windows
 
 # Build & Run
 dotnet run -c Release
