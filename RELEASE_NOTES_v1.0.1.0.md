@@ -3,8 +3,9 @@
 Welcome to the first official production release of **Parot**, the hyper-realistic, lifelike desktop bird companion for Windows 10 & 11!
 
 ### 📦 Download Options
-- **`Parot.msix`** — Official Microsoft Store MSIX package (Recommended for Windows 10/11 installation).
-- **`Parot-v1.0.1.0-Portable-x64.zip`** — Standalone portable version. Simply extract and double-click `Parot.exe`.
+- **`Parot.exe`** — Standalone Single-File Executable (~81 MB). Fully self-contained (no .NET or dependencies required) — just double-click to run immediately on any Windows 10/11 PC!
+- **`Parot.msix`** — Official Microsoft Store MSIX package (Recommended for standard Windows package installation).
+- **`Parot-v1.0.1.0-Portable-x64.zip`** — Standalone portable zip. Extract anywhere and run `Parot.exe`.
 - **Microsoft Store:** [Get on Microsoft Store](https://apps.microsoft.com/detail/9NDQ2S4Q0RJT) (Store ID: `9NDQ2S4Q0RJT`)
 
 ---
