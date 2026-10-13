@@ -11,12 +11,22 @@
     <Company>IT Amadersomaj Inc</Company>
     <Authors>IT Amadersomaj Inc</Authors>
     <Product>Parot</Product>
-    <Version>1.0.0.0</Version>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
+    <PackageId>Parot</PackageId>
+    <Version>1.0.1.0</Version>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
     <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
-    <DefaultItemExcludes>$(DefaultItemExcludes);tests\**;dist\**</DefaultItemExcludes>
+    <RepositoryUrl>https://github.com/mohammad-sheikh-shahinur-rahman/-Parot-The-Ultimate-Lifelike-Desktop-Bird-Companion-for-Windows</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Description>The Ultimate Lifelike Desktop Bird Companion for Windows. Multi-frame animations, 60 FPS flight physics, window titlebar perching, Pomodoro wellness, and voice controls.</Description>
+    <DefaultItemExcludes>$(DefaultItemExcludes);tests\**;dist\**;nupkg\**;Store-Screenshots\**</DefaultItemExcludes>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Speech" Version="8.0.0" />

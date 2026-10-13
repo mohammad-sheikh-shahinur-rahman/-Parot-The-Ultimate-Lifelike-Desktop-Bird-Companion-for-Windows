@@ -18,6 +18,9 @@ obj/
 # Build & Package Output
 dist/
 dist-msix/
+nupkg/
+*.zip
+*.msix
 *.log
 
 # Scratch Assets from Processing
