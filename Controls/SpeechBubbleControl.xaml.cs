@@ -120,20 +120,9 @@ public partial class SpeechBubbleControl : UserControl
     public void HideBubble()
     {
         _autoHideTimer.Stop();
-        if (Resources["HideStoryboard"] is Storyboard sb)
-        {
-            sb.Completed += (s, e) =>
-            {
-                Visibility = Visibility.Collapsed;
-                BubbleClosed?.Invoke();
-            };
-            sb.Begin(this);
-        }
-        else
-        {
-            Visibility = Visibility.Collapsed;
-            BubbleClosed?.Invoke();
-        }
+        Visibility = Visibility.Collapsed;
+        Opacity = 0;
+        BubbleClosed?.Invoke();
     }
 
     private void OnAutoHideTimerTick(object? sender, EventArgs e)

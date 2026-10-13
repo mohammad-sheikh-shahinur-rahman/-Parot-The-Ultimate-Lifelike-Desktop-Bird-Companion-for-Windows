@@ -84,10 +84,24 @@ public partial class SettingsWindow : Window
         TxtScaleVal.Text = $"{(int)(_current.Scale * 100)}%";
         ChkAlwaysOnTop.IsChecked = _current.AlwaysOnTop;
         ChkAllowWalking.IsChecked = _current.AllowWalking;
+        ChkAutonomousFlight.IsChecked = _current.AutonomousFlight;
+        ChkBirdcageMode.IsChecked = _current.BirdcageMode;
+        ChkFollowCursor.IsChecked = _current.FollowCursor;
         ChkGhostMode.IsChecked = _current.GhostMode;
         ChkSoundEnabled.IsChecked = _current.SoundEnabled;
         ChkScreenBreak.IsChecked = _current.ScreenBreakEnabled;
         ChkHydration.IsChecked = _current.HydrationReminderEnabled;
+
+        // Auto-Startup & Language
+        ChkStartWithWindows.IsChecked = AutoStartupService.IsAutoStartupEnabled() || _current.StartWithWindows;
+        CmbLanguage.SelectedIndex = _current.Language switch
+        {
+            "Bengali" => 1,
+            "English" => 2,
+            "Hindi" => 3,
+            "Spanish" => 4,
+            _ => 0
+        };
     }
 
     private void SliderScale_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -172,10 +186,28 @@ public partial class SettingsWindow : Window
         _current.Scale = SliderScale.Value;
         _current.AlwaysOnTop = ChkAlwaysOnTop.IsChecked ?? true;
         _current.AllowWalking = ChkAllowWalking.IsChecked ?? true;
+        _current.AutonomousFlight = ChkAutonomousFlight.IsChecked ?? true;
+        _current.BirdcageMode = ChkBirdcageMode.IsChecked ?? false;
+        _current.FollowCursor = ChkFollowCursor.IsChecked ?? false;
         _current.GhostMode = ChkGhostMode.IsChecked ?? false;
         _current.SoundEnabled = ChkSoundEnabled.IsChecked ?? true;
+        SoundService.MasterMute = !_current.SoundEnabled;
         _current.ScreenBreakEnabled = ChkScreenBreak.IsChecked ?? true;
         _current.HydrationReminderEnabled = ChkHydration.IsChecked ?? true;
+
+        // Auto-Startup & Language
+        bool startWithWindows = ChkStartWithWindows.IsChecked ?? false;
+        _current.StartWithWindows = startWithWindows;
+        AutoStartupService.SetAutoStartup(startWithWindows);
+
+        _current.Language = CmbLanguage.SelectedIndex switch
+        {
+            1 => "Bengali",
+            2 => "English",
+            3 => "Hindi",
+            4 => "Spanish",
+            _ => "Bilingual"
+        };
 
         _settingsService.SaveSettings(_current);
 

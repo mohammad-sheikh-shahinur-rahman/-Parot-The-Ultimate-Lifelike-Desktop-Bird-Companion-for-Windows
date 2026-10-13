@@ -13,8 +13,10 @@ public class AppSettings
     public string Skin { get; set; } = "ScarletMacaw"; // "ScarletMacaw", "GreenParakeet", "Cockatiel", "BlueMacaw"
     public string Accessory { get; set; } = "None"; // "None", "Glasses", "Sunglasses", "Scarf", "TopHat", "PartyHat", "Umbrella"
 
-    // Pet Behavior & Perching
+    // Pet Behavior & Perching & Flight
     public bool AllowWalking { get; set; } = true;
+    public bool AutonomousFlight { get; set; } = true;
+    public bool FollowCursor { get; set; } = false;
     public string PerchMode { get; set; } = "Desktop"; // "Desktop", "ActiveWindow"
     public int AutoSleepMinutes { get; set; } = 3; // 0 = disabled
     public bool IdleChirping { get; set; } = true;
@@ -46,9 +48,26 @@ public class AppSettings
     // AI & Gemini
     public string GeminiApiKey { get; set; } = "";
 
-    // Gamification & Friendship
+    // Gamification, Friendship & Hunger
     public int FriendshipXP { get; set; } = 150;
     public int FriendshipLevel => Math.Max(1, (FriendshipXP / 100) + 1);
+    public double HungerLevel { get; set; } = 85.0; // 0 to 100%
+
+    // Advanced Interactive Features
+    public bool DevWatcherEnabled { get; set; } = true;
+    public bool TypingSyncBobbing { get; set; } = true;
+    public bool WeatherSyncEnabled { get; set; } = true;
+    public string WeatherCity { get; set; } = "Auto";
+    public bool DualBirdMode { get; set; } = false;
+    public string CompanionSkin { get; set; } = "GreenParakeet";
+    public bool BallPushGameActive { get; set; } = false;
+    public bool PerchOnCursorActive { get; set; } = false;
+    public bool VoiceCommandsEnabled { get; set; } = true;
+    public bool DynamicLightingEnabled { get; set; } = true;
+    public bool OsAwarenessEnabled { get; set; } = true;
+    public string CurrentMood { get; set; } = "Cheerful";
+    public bool LaserPointerActive { get; set; } = false;
+    public bool BirdcageMode { get; set; } = false;
 
     // System
     public bool StartWithWindows { get; set; } = false;

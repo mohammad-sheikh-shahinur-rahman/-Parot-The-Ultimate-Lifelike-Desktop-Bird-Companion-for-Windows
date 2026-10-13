@@ -1,0 +1,29 @@
+<Window x:Class="Parot.Views.CompanionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:Parot.Controls"
+        Title="Parot Companion"
+        Width="260" Height="250"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ResizeMode="NoResize">
+    <Grid>
+        <!-- Floating Love Heart Particles -->
+        <TextBlock x:Name="LoveHearts"
+                   Text="💖"
+                   FontSize="28"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Top"
+                   Opacity="0"
+                   Margin="0,10,0,0"/>
+
+        <!-- Companion Pet Control -->
+        <controls:ParotPetControl x:Name="CompanionPet"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Bottom"
+                                  Cursor="Hand"/>
+    </Grid>
+</Window>

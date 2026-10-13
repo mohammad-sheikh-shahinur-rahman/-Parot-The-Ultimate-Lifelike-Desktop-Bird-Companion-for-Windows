@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Parot - Settings &amp; Customization"
+        Icon="../Assets/AppIcon.ico"
         Height="680" Width="500"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
@@ -89,8 +90,8 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Border Background="#DCFCE7" CornerRadius="12" Width="44" Height="44" Margin="0,0,12,0">
-                <TextBlock Text="🦜" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Border CornerRadius="10" Width="44" Height="44" Margin="0,0,12,0" ClipToBounds="True">
+                <Image Source="../Assets/WindowsAssets/Square150x150Logo.scale-200.png" RenderOptions.BitmapScalingMode="HighQuality"/>
             </Border>
 
             <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -233,6 +234,9 @@
 
                         <CheckBox x:Name="ChkAlwaysOnTop" Content="সব উইন্ডোর উপরে থাকবে (Always on Top)" IsChecked="True" Margin="0,0,0,8" FontSize="12"/>
                         <CheckBox x:Name="ChkAllowWalking" Content="ডেস্কটপে মাঝে মাঝে হাঁটাহাঁটি করবে (Allow Roaming)" IsChecked="True" Margin="0,0,0,8" FontSize="12"/>
+                        <CheckBox x:Name="ChkAutonomousFlight" Content="🚀 স্বাভাবিক উড়াউড়ি (Autonomous Flight Across Screen)" IsChecked="True" Margin="0,0,0,8" FontSize="12"/>
+                        <CheckBox x:Name="ChkBirdcageMode" Content="🏰 খাঁচাবন্দি মোড (Birdcage Mode - পাখি খাঁচায় শান্ত থাকবে)" IsChecked="False" Margin="0,0,0,8" FontSize="12"/>
+                        <CheckBox x:Name="ChkFollowCursor" Content="🎯 মাউস কার্সার অনুসরণ (Follow Mouse Cursor)" IsChecked="False" Margin="0,0,0,8" FontSize="12"/>
                         <CheckBox x:Name="ChkGhostMode" Content="ক্লিক-থ্রু মোড / Ghost Mode" IsChecked="False" Margin="0,0,0,8" FontSize="12"/>
                     </StackPanel>
                 </Border>
@@ -250,6 +254,32 @@
                             <Button Content="📊 View Daily Report" Style="{StaticResource SecondaryButton}" Click="BtnDailyReport_Click" Margin="0,0,6,0"/>
                             <Button Content="🔊 Test Chirp" Style="{StaticResource SecondaryButton}" Click="BtnTestSound_Click"/>
                         </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- 6. System & Language Card -->
+                <Border Style="{StaticResource CardBorder}">
+                    <StackPanel>
+                        <TextBlock Text="🌐 সিস্টেম ও ভাষা (System &amp; Language)" FontWeight="Bold" FontSize="13" Foreground="#059669" Margin="0,0,0,10"/>
+
+                        <!-- Language Selection -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="অ্যাপের ভাষা (Language):" FontSize="12" VerticalAlignment="Center"/>
+                            <ComboBox Grid.Column="1" x:Name="CmbLanguage" Width="180" FontSize="12">
+                                <ComboBoxItem Content="🌐 বাংলা + English (Bilingual)"/>
+                                <ComboBoxItem Content="🇧🇩 বাংলা (Bengali)"/>
+                                <ComboBoxItem Content="🇬🇧 English"/>
+                                <ComboBoxItem Content="🇮🇳 हिन्दी (Hindi)"/>
+                                <ComboBoxItem Content="🇪🇸 Español (Spanish)"/>
+                            </ComboBox>
+                        </Grid>
+
+                        <!-- Auto-Startup Toggle -->
+                        <CheckBox x:Name="ChkStartWithWindows" Content="🚀 উইন্ডোজ চালুর সাথে অটো স্টার্ট (Start with Windows)" IsChecked="False" Margin="0,2,0,2" FontSize="12"/>
                     </StackPanel>
                 </Border>
             </StackPanel>

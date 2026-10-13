@@ -14,3 +14,19 @@ obj/
 [Tt]emp/
 [Ll]og/
 [Ll]ogs/
+
+# Build & Package Output
+dist/
+dist-msix/
+*.log
+
+# Scratch Assets from Processing
+test_*.png
+temp_*.png
+rembg_*.png
+bird_flight_*.png
+cleaned_*.png
+cropped_*.png
+full_bird_*.png
+feet_*.png
+eye_crop*.png

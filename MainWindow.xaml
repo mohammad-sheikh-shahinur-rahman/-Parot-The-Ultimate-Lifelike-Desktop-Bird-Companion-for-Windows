@@ -6,7 +6,8 @@
         xmlns:controls="clr-namespace:Parot.Controls"
         mc:Ignorable="d"
         Title="Parot"
-        Width="320" Height="340"
+        Icon="Assets/AppIcon.ico"
+        Width="320" Height="370"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
@@ -18,24 +19,96 @@
 
     <Window.ContextMenu>
         <ContextMenu x:Name="PetContextMenu" FontSize="12">
+            <MenuItem x:Name="MenuMoodDisplay" Header="🎭 মেজাজ: 🌟 প্রফুল্ল (Mood: Cheerful)" Click="MenuMood_Click"/>
             <MenuItem x:Name="MenuPomodoro" Header="🍅 পোমোডোরো শুরু করুন (Start Focus)" Click="MenuPomodoro_Click"/>
             <MenuItem Header="✨ Ask Parot (এআই বাডি চ্যাট)" Click="MenuAskParot_Click"/>
             <MenuItem Header="📊 দৈনিক রিপোর্ট (Daily Report)" Click="MenuDailyReport_Click"/>
             <Separator/>
-            <MenuItem x:Name="MenuPerchMode" Header="🪟 উইন্ডোর ওপরে বসো (Perch on Active Window)" Click="MenuPerchMode_Click"/>
-            <MenuItem Header="🎮 মাউস নিয়ে খেলা (Play Tag with Cursor)" Click="MenuPlayTag_Click"/>
-            <MenuItem Header="💬 কথা বলো (Squawk!)" Click="MenuSquawk_Click"/>
-            <MenuItem Header="🌶️ ঝাল লঙ্কা খাওয়াও (Feed Chili)" Click="MenuFeedChili_Click"/>
-            <MenuItem Header="🌻 সূর্যমুখী বীজ খাওয়াও (Feed Seeds)" Click="MenuFeedSeeds_Click"/>
+            <!-- Interactive Mini-Games & Toys -->
+            <MenuItem x:Name="MenuMiniGames" Header="🎯 খেলাধুলো ও ট্রিকস (Mini-Games &amp; Toys)">
+                <MenuItem x:Name="MenuLaserPointer" Header="🔴 লেজার পয়েন্টার খেলনা (Laser Pointer Toy)" Click="MenuLaserPointer_Click"/>
+                <MenuItem Header="🪞 ডেস্কটপ আয়না (Desktop Mirror Trick)" Click="MenuDesktopMirror_Click"/>
+                <Separator/>
+                <MenuItem Header="🌶️ লঙ্কা ছুড়ে দাও (Throw Chili Treat)" Click="MenuThrowChili_Click"/>
+                <MenuItem Header="🥜 বাদাম ছুড়ে দাও (Throw Peanut Treat)" Click="MenuThrowPeanut_Click"/>
+                <MenuItem Header="🌻 সূর্যমুখী বীজ ছুড়ে দাও (Throw Seeds)" Click="MenuThrowSeed_Click"/>
+                <Separator/>
+                <MenuItem x:Name="MenuPerchCursor" Header="🎯 কার্সারের পিঠে চড়ো (Perch on Cursor)" Click="MenuPerchCursor_Click"/>
+                <MenuItem x:Name="MenuBallPush" Header="⚽ বল ঠেলার খেলা (Ball Push Game)" Click="MenuBallPush_Click"/>
+                <MenuItem Header="🎮 মাউস নিয়ে খেলা (Play Tag with Cursor)" Click="MenuPlayTag_Click"/>
+            </MenuItem>
+            <!-- Avian Behaviors Submenu -->
+            <MenuItem x:Name="MenuAvianBehaviors" Header="🕊️ পাখির স্বাভাবিক আচরণ (Avian Behaviors)">
+                <MenuItem Header="🚶 টাইটেলবারে হেঁটে বেড়াও (Walk on Titlebar)" Click="MenuWalkTitlebar_Click"/>
+                <MenuItem Header="🪶 বসে ডানা ঝাপটাও (Flap Wings on Perch)" Click="MenuFlapPerch_Click"/>
+                <MenuItem Header="👀 মাথা ঘুরিয়ে তাকাও (Curious Look Around)" Click="MenuCuriousLook_Click"/>
+                <MenuItem Header="✨ পালক আঁচড়াও (Preen Feathers)" Click="MenuPreen_Click"/>
+                <MenuItem Header="🧘 ডানা ও পা স্ট্রেচ করো (Wing &amp; Leg Stretch)" Click="MenuStretch_Click"/>
+                <MenuItem Header="💨 গা ঝাড়া দাও (Fluff &amp; Shake Feathers)" Click="MenuFluff_Click"/>
+                <MenuItem Header="🥱 হাই তোলো (Yawn)" Click="MenuYawn_Click"/>
+                <MenuItem Header="😵💫 ডিজি ট্রিক (Make Dizzy)" Click="MenuDizzy_Click"/>
+            </MenuItem>
+            <!-- Bird Species -->
+            <MenuItem x:Name="MenuBirdSpecies" Header="🎨 পাখির প্রজাতি (Bird Species)">
+                <MenuItem Header="🔴 Scarlet Macaw (লাল ম্যাকাও)" Click="MenuSkinScarletMacaw_Click"/>
+                <MenuItem Header="🟢 Green Parakeet (দেশি টিয়া)" Click="MenuSkinGreenParakeet_Click"/>
+                <MenuItem Header="🔵 Blue &amp; Gold Macaw (নীল ম্যাকাও)" Click="MenuSkinBlueMacaw_Click"/>
+                <MenuItem Header="🟡 Cockatiel (হলুদ ককাটেল)" Click="MenuSkinCockatiel_Click"/>
+                <MenuItem Header="⚪ White Cockatoo (সাদা কাকাতুয়া)" Click="MenuSkinCockatoo_Click"/>
+            </MenuItem>
+            <!-- Accessories Submenu -->
+            <MenuItem x:Name="MenuAccessories" Header="👓 পোশাক ও সাজসজ্জা (Accessories)">
+                <MenuItem Header="🕶️ সানগ্লাস (Cool Sunglasses)" Click="MenuAccessorySunglasses_Click"/>
+                <MenuItem Header="👓 রিডিং চশমা (Reading Glasses)" Click="MenuAccessoryGlasses_Click"/>
+                <MenuItem Header="🧣 শীতের মাফলার (Winter Scarf)" Click="MenuAccessoryScarf_Click"/>
+                <MenuItem Header="🎩 অভিজাত হ্যাট (Top Hat)" Click="MenuAccessoryTopHat_Click"/>
+                <MenuItem Header="🥳 পার্টি হ্যাট (Party Hat)" Click="MenuAccessoryPartyHat_Click"/>
+                <MenuItem Header="☂️ ছাতা (Umbrella)" Click="MenuAccessoryUmbrella_Click"/>
+                <Separator/>
+                <MenuItem Header="🚫 কোনো সাজসজ্জা নয় (Remove All)" Click="MenuAccessoryNone_Click"/>
+            </MenuItem>
+            <!-- Voice & Audio -->
+            <MenuItem x:Name="MenuVoiceAudio" Header="🎙️ ভয়েস ও সাউন্ড (Voice &amp; Audio)">
+                <MenuItem x:Name="MenuSoundToggle" Header="🔊 সাউন্ড: চালু (Sound: ON)" Click="MenuSoundToggle_Click"/>
+                <Separator/>
+                <MenuItem Header="🎙️ কথা শেখাও ও নকল শোনো (Record &amp; Echo Voice)" Click="MenuVoiceMimic_Click"/>
+                <MenuItem x:Name="MenuVoiceCommands" Header="🗣️ ভয়েস কমান্ড (Voice Commands: Active)" Click="MenuVoiceCommands_Click"/>
+                <MenuItem Header="💬 ডাক ছাড়ো (Squawk!)" Click="MenuSquawk_Click"/>
+            </MenuItem>
+            <!-- Hunger & Feeding -->
+            <MenuItem x:Name="MenuHungerFeeding" Header="🍽️ ক্ষুধা ও খাবার (Hunger &amp; Feeding)">
+                <MenuItem x:Name="MenuHungerDisplay" Header="❤️ ক্ষুধা লেভেল: 85%" IsEnabled="False"/>
+                <Separator/>
+                <MenuItem x:Name="MenuHuntPrey" Header="🐞 পোকা শিকার করো (Hunt Bug)" Click="MenuHuntPrey_Click"/>
+                <MenuItem Header="🦗 ঘাসফড়িং শিকার করো (Hunt Grasshopper)" Click="MenuHuntGrasshopper_Click"/>
+                <MenuItem Header="🌶️ ঝাল লঙ্কা খাওয়াও (Feed Chili)" Click="MenuFeedChili_Click"/>
+                <MenuItem Header="🌻 সূর্যমুখী বীজ খাওয়াও (Feed Seeds)" Click="MenuFeedSeeds_Click"/>
+            </MenuItem>
+            <!-- Weather & Companion -->
+            <MenuItem x:Name="MenuWeather" Header="🌦️ লাইভ আবহাওয়া চেক করো (Check Weather)" Click="MenuWeather_Click"/>
+            <MenuItem x:Name="MenuCompanionBird" Header="🦜🦜 দ্বিতীয় সঙ্গী পাখি ডাকুন (Toggle Bird Buddy)" Click="MenuCompanion_Click"/>
             <Separator/>
+            <MenuItem x:Name="MenuSoundQuickToggle" Header="🔊 সাউন্ড: চালু (Toggle Mute/Unmute)" Click="MenuSoundToggle_Click"/>
+            <MenuItem x:Name="MenuFlyAround" Header="🚀 আকাশে ডানা মেলে ওড়ো (Take Flight)" Click="MenuFlyAround_Click"/>
+            <MenuItem x:Name="MenuFollowCursor" Header="🎯 কার্সার অনুসরণ করো (Follow Cursor)" Click="MenuFollowCursor_Click"/>
+            <MenuItem x:Name="MenuPerchMode" Header="🪟 উইন্ডোর ওপরে বসো (Perch on Active Window)" Click="MenuPerchMode_Click"/>
+            <MenuItem x:Name="MenuBirdcage" Header="🏰 খাঁচাবন্দি করো (Put in Birdcage)" Click="MenuBirdcage_Click"/>
             <MenuItem x:Name="MenuSleepWake" Header="💤 ঘুমাতে যাও (Go to Sleep)" Click="MenuSleepWake_Click"/>
             <MenuItem Header="👁️ চোখের বিশ্রাম (20-20-20 Break)" Click="MenuEyeBreak_Click"/>
             <MenuItem Header="💧 পানি খাওয়ার রিমাইন্ডার (Hydrate)" Click="MenuHydrate_Click"/>
             <Separator/>
-            <MenuItem Header="👻 Ghost Mode (Click-Through)" Click="MenuGhostMode_Click"/>
-            <MenuItem Header="⚙️ সেটিংস (Settings...)" Click="MenuSettings_Click"/>
+            <MenuItem x:Name="MenuAutoStartup" Header="🚀 উইন্ডোজ চালুর সাথে অটো স্টার্ট (Start with Windows)" Click="MenuAutoStartup_Click" IsCheckable="True"/>
+            <MenuItem x:Name="MenuLanguage" Header="🌐 ভাষা নির্বাচন (Language)">
+                <MenuItem x:Name="MenuLangBengali" Header="🇧🇩 বাংলা (Bengali)" Click="MenuLangBengali_Click" IsCheckable="True"/>
+                <MenuItem x:Name="MenuLangEnglish" Header="🇬🇧 English" Click="MenuLangEnglish_Click" IsCheckable="True"/>
+                <MenuItem x:Name="MenuLangHindi" Header="🇮🇳 हिन्दी (Hindi)" Click="MenuLangHindi_Click" IsCheckable="True"/>
+                <MenuItem x:Name="MenuLangSpanish" Header="🇪🇸 Español (Spanish)" Click="MenuLangSpanish_Click" IsCheckable="True"/>
+                <MenuItem x:Name="MenuLangBilingual" Header="🌐 বাংলা + English (Bilingual)" Click="MenuLangBilingual_Click" IsCheckable="True"/>
+            </MenuItem>
+            <MenuItem x:Name="MenuGhostMode" Header="👻 Ghost Mode (Click-Through)" Click="MenuGhostMode_Click"/>
+            <MenuItem x:Name="MenuSettings" Header="⚙️ সেটিংস (Settings...)" Click="MenuSettings_Click"/>
             <Separator/>
-            <MenuItem Header="❌ বন্ধ করুন (Exit Parot)" Click="MenuExit_Click"/>
+            <MenuItem x:Name="MenuExit" Header="❌ বন্ধ করুন (Exit Parot)" Click="MenuExit_Click"/>
         </ContextMenu>
     </Window.ContextMenu>
 
@@ -52,12 +125,14 @@
                                       VerticalAlignment="Top"
                                       Margin="0,0,0,0"/>
 
+
         <!-- Animated Parot Pet Character -->
         <controls:ParotPetControl x:Name="Pet"
                                   Grid.Row="1"
                                   HorizontalAlignment="Center"
                                   VerticalAlignment="Bottom"
                                   Cursor="Hand"
+                                  MouseDown="Pet_MouseDown"
                                   MouseLeftButtonDown="Pet_MouseLeftButtonDown"
                                   MouseLeftButtonUp="Pet_MouseLeftButtonUp"
                                   MouseRightButtonUp="Pet_MouseRightButtonUp"

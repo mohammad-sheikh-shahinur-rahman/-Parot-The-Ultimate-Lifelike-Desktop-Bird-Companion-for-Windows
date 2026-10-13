@@ -1,0 +1,49 @@
+<Window x:Class="Parot.Views.BouncyBallWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="BouncyBall"
+        Width="50" Height="50"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ResizeMode="NoResize"
+        Cursor="Hand"
+        MouseLeftButtonDown="Ball_MouseLeftButtonDown"
+        MouseRightButtonUp="Ball_MouseRightButtonUp"
+        ToolTip="⚽ Parot's Bouncy Ball! মাউস দিয়ে ধাক্কা দাও, পাখি ফেরত পাঠাবে! (Right-click to close)">
+    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+        <!-- Drop Shadow -->
+        <Ellipse Width="36" Height="10" Fill="#44000000" VerticalAlignment="Bottom" Margin="0,0,0,2">
+            <Ellipse.Effect>
+                <BlurEffect Radius="6"/>
+            </Ellipse.Effect>
+        </Ellipse>
+
+        <!-- 3D Glossy Toy Ball -->
+        <Ellipse x:Name="BallVisual" Width="42" Height="42" RenderTransformOrigin="0.5,0.5">
+            <Ellipse.Fill>
+                <RadialGradientBrush Center="0.35,0.35" GradientOrigin="0.3,0.3" RadiusX="0.65" RadiusY="0.65">
+                    <GradientStop Color="#FFFF7043" Offset="0.0"/>
+                    <GradientStop Color="#FFE64A19" Offset="0.5"/>
+                    <GradientStop Color="#FFD84315" Offset="0.8"/>
+                    <GradientStop Color="#FFBF360C" Offset="1.0"/>
+                </RadialGradientBrush>
+            </Ellipse.Fill>
+            <Ellipse.RenderTransform>
+                <RotateTransform x:Name="BallRotation" Angle="0"/>
+            </Ellipse.RenderTransform>
+        </Ellipse>
+
+        <!-- Striped Pattern Accent -->
+        <Path Data="M 12,21 Q 25,12 38,21 Q 25,30 12,21 Z" Fill="#FFEEFF41" Opacity="0.85"/>
+
+        <!-- Gloss Highlight -->
+        <Ellipse Width="16" Height="8" Fill="#AAFFFFFF" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8,8,0,0">
+            <Ellipse.RenderTransform>
+                <RotateTransform Angle="-25"/>
+            </Ellipse.RenderTransform>
+        </Ellipse>
+    </Grid>
+</Window>

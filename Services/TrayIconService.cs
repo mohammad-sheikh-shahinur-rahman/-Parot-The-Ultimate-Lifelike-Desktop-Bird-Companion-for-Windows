@@ -18,6 +18,9 @@ public class TrayIconService : IDisposable
     public event Action? FeedTreatRequested;
     public event Action? PomodoroToggled;
     public event Action? DailyReportRequested;
+    public event Action? SoundToggled;
+    public event Action? FlyRequested;
+    public event Action? FollowCursorToggled;
     public event Action? PerchModeToggled;
     public event Action? AskParotRequested;
     public event Action? GhostModeToggled;
@@ -26,7 +29,9 @@ public class TrayIconService : IDisposable
 
     private readonly ToolStripMenuItem _itemShowHide;
     private readonly ToolStripMenuItem _itemSleepWake;
+    private readonly ToolStripMenuItem _itemSoundToggle;
     private readonly ToolStripMenuItem _itemPomodoro;
+    private readonly ToolStripMenuItem _itemFollowCursor;
     private readonly ToolStripMenuItem _itemPerchMode;
     private readonly ToolStripMenuItem _itemGhost;
 
@@ -36,6 +41,10 @@ public class TrayIconService : IDisposable
 
         _itemShowHide = new ToolStripMenuItem("🦜 Hide Parot", null, (s, e) => ShowHideToggled?.Invoke());
         _itemSleepWake = new ToolStripMenuItem("💤 Go to Sleep", null, (s, e) => SleepWakeToggled?.Invoke());
+        _itemSoundToggle = new ToolStripMenuItem("🔊 Sound: ON", null, (s, e) => SoundToggled?.Invoke());
+
+        var flyItem = new ToolStripMenuItem("🚀 Take Flight", null, (s, e) => FlyRequested?.Invoke());
+        _itemFollowCursor = new ToolStripMenuItem("🎯 Follow Cursor", null, (s, e) => FollowCursorToggled?.Invoke());
 
         _itemPomodoro = new ToolStripMenuItem("🍅 Start Pomodoro Focus (25m)", null, (s, e) => PomodoroToggled?.Invoke());
         var askItem = new ToolStripMenuItem("✨ Ask Parot (AI Chat)", null, (s, e) => AskParotRequested?.Invoke());
@@ -55,6 +64,9 @@ public class TrayIconService : IDisposable
         [
             _itemShowHide,
             _itemSleepWake,
+            _itemSoundToggle,
+            flyItem,
+            _itemFollowCursor,
             new ToolStripSeparator(),
             _itemPomodoro,
             askItem,
@@ -92,6 +104,11 @@ public class TrayIconService : IDisposable
         _itemSleepWake.Text = isSleeping ? "☀️ Wake Up Parot" : "💤 Put to Sleep";
     }
 
+    public void UpdateSoundState(bool soundEnabled)
+    {
+        _itemSoundToggle.Text = soundEnabled ? "🔊 Sound: ON" : "🔇 Sound: Muted (OFF)";
+    }
+
     public void UpdatePomodoroState(bool isRunning)
     {
         _itemPomodoro.Text = isRunning ? "🍅 Stop Pomodoro" : "🍅 Start Pomodoro Focus (25m)";
@@ -114,6 +131,26 @@ public class TrayIconService : IDisposable
 
     private static Icon CreateParrotIcon()
     {
+        try
+        {
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            string[] possiblePaths =
+            [
+                System.IO.Path.Combine(baseDir, "Assets", "AppIcon.ico"),
+                System.IO.Path.Combine(baseDir, "Assets", "WindowsAssets", "AppIcon.ico"),
+                System.IO.Path.Combine(baseDir, "Parot-Windows-Assets", "AppIcon.ico")
+            ];
+
+            foreach (var path in possiblePaths)
+            {
+                if (System.IO.File.Exists(path))
+                {
+                    return new Icon(path);
+                }
+            }
+        }
+        catch { }
+
         using var bmp = new Bitmap(32, 32);
         using (var g = Graphics.FromImage(bmp))
         {

@@ -3,22 +3,46 @@ namespace Parot.Models;
 public enum PetState
 {
     Idle,
+    Blinking,
     LookingLeft,
     LookingRight,
     CuriousHeadTilt,
-    Blinking,
-    FlappingWings,
     Hopping,
+    TakeOff,
+    Flying,
+    Landing,
+    Perching,
+    FollowCursor,
+    FlappingWings,
     Dragged,
     Sleeping,
+    NightSleeping,
+    WakeUp,
     Happy,
     Eating,
     Speaking,
-    Dancing,          // Feature 2: Beat sync headbang & dance
-    PomodoroFocus,    // Feature 1: Study mode with glasses
-    PomodoroBreak,    // Feature 1: Break celebration
-    PlayingCatch,     // Feature 6: Flying to catch treat
-    NightSleeping     // Feature 7: Night mode sleep with nightcap
+    Dancing,
+    PomodoroFocus,
+    PomodoroBreak,
+    PlayingCatch,
+    Walking,
+    PeekingEdge,
+    Preening,
+    Stretching,
+    Fluffing,
+    Yawning,
+    BeakWiping,
+    HeadScratching,
+    TailWagging,
+    Dizzy
+}
+
+public enum PetMood
+{
+    Cheerful,
+    Curious,
+    Needy,
+    Sleepy
 }
 
 public enum ReminderType

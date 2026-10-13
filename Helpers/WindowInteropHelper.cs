@@ -37,6 +37,85 @@ public static class WindowInteropHelperNative
         return new System.Windows.Point(0, 0);
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    public struct RECT
+    {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MONITORINFO
+    {
+        public int cbSize;
+        public RECT rcMonitor;
+        public RECT rcWork;
+        public int dwFlags;
+    }
+
+    private const uint MONITOR_DEFAULTTONEAREST = 2;
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint dwFlags);
+
+    [DllImport("user32.dll", EntryPoint = "GetMonitorInfoW")]
+    private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr MonitorFromPoint(POINT pt, uint dwFlags);
+
+    public static Rect GetMonitorWorkAreaFromPoint(System.Windows.Point pt)
+    {
+        try
+        {
+            var p = new POINT { X = (int)Math.Round(pt.X), Y = (int)Math.Round(pt.Y) };
+            IntPtr hMonitor = MonitorFromPoint(p, MONITOR_DEFAULTTONEAREST);
+            if (hMonitor != IntPtr.Zero)
+            {
+                var mi = new MONITORINFO { cbSize = Marshal.SizeOf<MONITORINFO>() };
+                if (GetMonitorInfo(hMonitor, ref mi))
+                {
+                    return new Rect(
+                        mi.rcWork.Left,
+                        mi.rcWork.Top,
+                        mi.rcWork.Right - mi.rcWork.Left,
+                        mi.rcWork.Bottom - mi.rcWork.Top);
+                }
+            }
+        }
+        catch { }
+
+        return SystemParameters.WorkArea;
+    }
+
+    public static Rect GetMonitorWorkArea(IntPtr hwnd)
+    {
+        try
+        {
+            if (hwnd != IntPtr.Zero)
+            {
+                IntPtr hMonitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+                if (hMonitor != IntPtr.Zero)
+                {
+                    var mi = new MONITORINFO { cbSize = Marshal.SizeOf<MONITORINFO>() };
+                    if (GetMonitorInfo(hMonitor, ref mi))
+                    {
+                        return new Rect(
+                            mi.rcWork.Left,
+                            mi.rcWork.Top,
+                            mi.rcWork.Right - mi.rcWork.Left,
+                            mi.rcWork.Bottom - mi.rcWork.Top);
+                    }
+                }
+            }
+        }
+        catch { }
+
+        return SystemParameters.WorkArea;
+    }
+
     public static void SetClickThrough(Window window, bool enable)
     {
         var hwnd = new WindowInteropHelper(window).Handle;

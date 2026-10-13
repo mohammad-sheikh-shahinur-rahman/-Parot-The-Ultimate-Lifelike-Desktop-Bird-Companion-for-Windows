@@ -13,6 +13,7 @@ public class VoiceMimicService : IDisposable
     private static readonly HttpClient _httpClient = new();
 
     public bool Enabled { get; set; } = true;
+    public bool MasterSoundEnabled { get; set; } = true;
     public int VoiceRate { get; set; } = 4; // Cartoon fast chirp
 
     public VoiceMimicService(bool enabled = true, int voiceRate = 4)
@@ -34,12 +35,13 @@ public class VoiceMimicService : IDisposable
 
     public void Speak(string text)
     {
-        if (!Enabled || _synth == null || string.IsNullOrWhiteSpace(text)) return;
+        if (!Enabled || !MasterSoundEnabled || SoundService.MasterMute || _synth == null || string.IsNullOrWhiteSpace(text)) return;
 
         Task.Run(() =>
         {
             try
             {
+                if (!Enabled || !MasterSoundEnabled || SoundService.MasterMute || _synth == null) return;
                 _synth.SpeakAsyncCancelAll();
                 _synth.Rate = VoiceRate;
                 _synth.SpeakAsync(text);

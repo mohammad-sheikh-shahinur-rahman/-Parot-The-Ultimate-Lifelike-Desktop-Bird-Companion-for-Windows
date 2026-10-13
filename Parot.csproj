@@ -8,9 +8,14 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationTitle>Parot - Desktop Bird Companion</ApplicationTitle>
-    <Company>Parot</Company>
+    <Company>IT Amadersomaj Inc</Company>
+    <Authors>IT Amadersomaj Inc</Authors>
     <Product>Parot</Product>
+    <Version>1.0.0.0</Version>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
+    <DefaultItemExcludes>$(DefaultItemExcludes);tests\**;dist\**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Assets\Sounds\**\*">
+    <Content Include="Assets\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

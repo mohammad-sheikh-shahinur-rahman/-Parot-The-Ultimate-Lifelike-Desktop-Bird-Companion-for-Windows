@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Media;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 
@@ -8,6 +10,14 @@ namespace Parot.Services;
 
 public class SoundService
 {
+    [DllImport("winmm.dll", EntryPoint = "PlaySound", SetLastError = true)]
+    private static extern bool PlaySound(string? pszSound, IntPtr hmod, uint fdwSound);
+
+    [DllImport("winmm.dll", EntryPoint = "mciSendStringA", CharSet = CharSet.Ansi)]
+    private static extern int mciSendString(string lpstrCommand, StringBuilder? lpstrReturnString, int uReturnLength, IntPtr hwndCallback);
+
+    public static bool MasterMute { get; set; } = false;
+
     private bool _enabled = true;
     private double _volume = 0.8;
     private readonly Random _random = new();
@@ -18,6 +28,10 @@ public class SoundService
     private readonly MemoryStream? _munchStream;
     private readonly MemoryStream? _chimeStream;
     private readonly MemoryStream? _snoreStream;
+    private readonly MemoryStream? _stepStream;
+    private readonly MemoryStream? _stepStream2;
+    private readonly MemoryStream? _flapStream;
+    private readonly MemoryStream? _preenStream;
 
     private readonly string _voiceFolder;
     private readonly string? _fileChatter;
@@ -26,11 +40,20 @@ public class SoundService
     private readonly string? _fileJungle;
     private readonly string? _fileKea;
     private readonly string? _fileMacaw;
+    private readonly MediaPlayer _mediaPlayer = new();
 
     public bool Enabled
     {
-        get => _enabled;
-        set => _enabled = value;
+        get => _enabled && !MasterMute;
+        set
+        {
+            _enabled = value;
+            MasterMute = !value;
+            if (!value)
+            {
+                StopAll();
+            }
+        }
     }
 
     public double Volume
@@ -43,6 +66,15 @@ public class SoundService
     {
         _enabled = enabled;
         _volume = volume;
+        if (!enabled)
+        {
+            MasterMute = true;
+        }
+
+        if (!_enabled)
+        {
+            StopAll();
+        }
 
         // 1. Locate Voice Folder (first check local Assets\Sounds, then K:\Parot\Parot Voice)
         string localFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Sounds");
@@ -71,6 +103,10 @@ public class SoundService
             _munchStream = CreateMunchWav();
             _chimeStream = CreateChimeWav();
             _snoreStream = CreateSnoreWav();
+            _stepStream = CreateStepWav(620.0);
+            _stepStream2 = CreateStepWav(530.0);
+            _flapStream = CreateWingFlapWav();
+            _preenStream = CreatePreenWav();
         }
         catch (Exception ex)
         {
@@ -92,9 +128,54 @@ public class SoundService
         }
     }
 
+    public void StopAll()
+    {
+        MasterMute = true;
+        try
+        {
+            if (System.Windows.Application.Current?.Dispatcher != null)
+            {
+                if (System.Windows.Application.Current.Dispatcher.CheckAccess())
+                {
+                    _mediaPlayer.Stop();
+                    _mediaPlayer.Close();
+                }
+                else
+                {
+                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        try
+                        {
+                            _mediaPlayer.Stop();
+                            _mediaPlayer.Close();
+                        }
+                        catch { }
+                    });
+                }
+            }
+            else
+            {
+                _mediaPlayer.Stop();
+                _mediaPlayer.Close();
+            }
+        }
+        catch { }
+
+        try
+        {
+            // Halt any Windows multimedia wave audio immediately
+            PlaySound(null, IntPtr.Zero, 0);
+            mciSendString("stop all", null, 0, IntPtr.Zero);
+            mciSendString("close all", null, 0, IntPtr.Zero);
+        }
+        catch { }
+    }
+
     // High level sound triggers
     public void PlayChirp()
     {
+        if (!_enabled || MasterMute || _volume <= 0.001) return;
+
         // Try real Kea or screech first
         if (_fileKea != null && _random.Next(2) == 0)
         {
@@ -112,6 +193,8 @@ public class SoundService
 
     public void PlayDoubleChirp()
     {
+        if (!_enabled || MasterMute || _volume <= 0.001) return;
+
         if (_fileMimic != null && _random.Next(2) == 0)
         {
             PlayMp3(_fileMimic);
@@ -128,6 +211,8 @@ public class SoundService
 
     public void PlayTrill()
     {
+        if (!_enabled || MasterMute || _volume <= 0.001) return;
+
         if (_fileChatter != null)
         {
             PlayMp3(_fileChatter);
@@ -144,29 +229,87 @@ public class SoundService
 
     public void PlayRealParrotChatter()
     {
+        if (!_enabled || MasterMute || _volume <= 0.001) return;
         if (_fileChatter != null) PlayMp3(_fileChatter);
         else PlayStream(_doubleChirpStream);
     }
 
     public void PlayRealParrotScreech()
     {
+        if (!_enabled || MasterMute || _volume <= 0.001) return;
         if (_fileScreech != null) PlayMp3(_fileScreech);
         else PlayStream(_chirpStream);
     }
 
     public void PlayRealParrotMimic()
     {
+        if (!_enabled || MasterMute || _volume <= 0.001) return;
         if (_fileMimic != null) PlayMp3(_fileMimic);
         else PlayStream(_trillStream);
     }
 
-    public void PlayMunch() => PlayStream(_munchStream);
-    public void PlayChime() => PlayStream(_chimeStream);
-    public void PlaySnore() => PlayStream(_snoreStream);
+    public void PlayMunch()
+    {
+        if (!_enabled || MasterMute || _volume <= 0.001) return;
+        PlayStream(_munchStream);
+    }
+
+    public void PlayChime()
+    {
+        if (!_enabled || MasterMute || _volume <= 0.001) return;
+        PlayStream(_chimeStream);
+    }
+
+    public void PlaySnore()
+    {
+        if (!_enabled || MasterMute || _volume <= 0.001) return;
+        PlayStream(_snoreStream);
+    }
+
+    public void PlayHappy()
+    {
+        if (!_enabled || MasterMute || _volume <= 0.001) return;
+        PlayTrill();
+    }
+
+    public void PlayCurious()
+    {
+        if (!_enabled || MasterMute || _volume <= 0.001) return;
+        PlayChirp();
+    }
+
+    public void PlaySquawk()
+    {
+        if (!_enabled || MasterMute || _volume <= 0.001) return;
+        PlayRealParrotScreech();
+    }
+
+    public void PlayStep(bool alternate = false)
+    {
+        if (!_enabled || MasterMute || _volume <= 0.001) return;
+        PlayStream(alternate ? (_stepStream2 ?? _stepStream) : _stepStream);
+    }
+
+    public void PlayRustle()
+    {
+        PlayPreen();
+    }
+
+    public void PlayWingFlap()
+    {
+        if (!_enabled || MasterMute || _volume <= 0.001) return;
+        PlayStream(_flapStream);
+    }
+
+    public void PlayPreen()
+    {
+        if (!_enabled || MasterMute || _volume <= 0.001) return;
+        PlayStream(_preenStream);
+    }
 
     private void PlayMp3(string? filePath)
     {
-        if (!_enabled || string.IsNullOrEmpty(filePath) || !File.Exists(filePath) || _volume <= 0.01)
+        if (!_enabled || MasterMute || string.IsNullOrEmpty(filePath) || !File.Exists(filePath) || _volume <= 0.001)
         {
             return;
         }
@@ -179,11 +322,25 @@ public class SoundService
                 {
                     try
                     {
-                        var player = new MediaPlayer();
-                        player.Volume = _volume;
-                        player.Open(new Uri(filePath, UriKind.Absolute));
-                        player.Play();
-                        player.MediaEnded += (s, e) => player.Close();
+                        if (!_enabled || MasterMute || _volume <= 0.001)
+                        {
+                            _mediaPlayer.Stop();
+                            _mediaPlayer.Close();
+                            return;
+                        }
+
+                        _mediaPlayer.Stop();
+                        _mediaPlayer.Volume = _volume;
+                        _mediaPlayer.Open(new Uri(filePath, UriKind.Absolute));
+
+                        if (!_enabled || MasterMute)
+                        {
+                            _mediaPlayer.Stop();
+                            _mediaPlayer.Close();
+                            return;
+                        }
+
+                        _mediaPlayer.Play();
                     }
                     catch (Exception ex)
                     {
@@ -200,14 +357,16 @@ public class SoundService
 
     private void PlayStream(MemoryStream? stream)
     {
-        if (!_enabled || stream == null || _volume <= 0.01) return;
+        if (!_enabled || MasterMute || stream == null || _volume <= 0.001) return;
 
         Task.Run(() =>
         {
             try
             {
+                if (!_enabled || MasterMute || _volume <= 0.001) return;
                 stream.Position = 0;
                 using var player = new SoundPlayer(stream);
+                if (!_enabled || MasterMute) return;
                 player.Play();
             }
             catch (Exception ex)
@@ -359,6 +518,77 @@ public class SoundService
             double env = Math.Sin(Math.PI * progress) * 0.35;
             double tone = Math.Sin(2.0 * Math.PI * (380.0 + Math.Sin(progress * Math.PI) * 40.0) * t);
             samples[i] = (short)(tone * env * short.MaxValue);
+        }
+
+        return EncodeWav(samples, sampleRate);
+    }
+
+    private static MemoryStream CreateStepWav(double baseFreq = 620.0)
+    {
+        const int sampleRate = 44100;
+        const double duration = 0.05;
+        int totalSamples = (int)(sampleRate * duration);
+        var samples = new short[totalSamples];
+
+        for (int i = 0; i < totalSamples; i++)
+        {
+            double t = (double)i / sampleRate;
+            double progress = t / duration;
+            double env = Math.Exp(-progress * 24.0) * 0.45;
+            double tone = Math.Sin(2.0 * Math.PI * baseFreq * t);
+            samples[i] = (short)(tone * env * short.MaxValue);
+        }
+
+        return EncodeWav(samples, sampleRate);
+    }
+
+    private static MemoryStream CreateWingFlapWav()
+    {
+        const int sampleRate = 44100;
+        const double duration = 0.28;
+        int totalSamples = (int)(sampleRate * duration);
+        var samples = new short[totalSamples];
+        var rand = new Random(77);
+
+        for (int i = 0; i < totalSamples; i++)
+        {
+            double t = (double)i / sampleRate;
+            double progress = t / duration;
+            double flutter = Math.Sin(2.0 * Math.PI * 14.0 * t) * 0.5 + 0.5;
+            double env = Math.Sin(Math.PI * progress) * flutter * 0.40;
+            double tone = Math.Sin(2.0 * Math.PI * (160.0 + 80.0 * progress) * t) * 0.6
+                        + (rand.NextDouble() * 2.0 - 1.0) * 0.4;
+            samples[i] = (short)Math.Clamp(tone * env * short.MaxValue, short.MinValue, short.MaxValue);
+        }
+
+        return EncodeWav(samples, sampleRate);
+    }
+
+    private static MemoryStream CreatePreenWav()
+    {
+        const int sampleRate = 44100;
+        const double duration = 0.12;
+        int totalSamples = (int)(sampleRate * duration);
+        var samples = new short[totalSamples];
+
+        int click1 = (int)(sampleRate * 0.01);
+        int click2 = (int)(sampleRate * 0.06);
+        int clickLen = (int)(sampleRate * 0.02);
+
+        for (int i = 0; i < clickLen && (click1 + i) < totalSamples; i++)
+        {
+            double p = (double)i / clickLen;
+            double env = (1.0 - p) * 0.35;
+            double tone = Math.Sin(2.0 * Math.PI * 1900.0 * (double)i / sampleRate);
+            samples[click1 + i] = (short)(tone * env * short.MaxValue);
+        }
+
+        for (int i = 0; i < clickLen && (click2 + i) < totalSamples; i++)
+        {
+            double p = (double)i / clickLen;
+            double env = (1.0 - p) * 0.28;
+            double tone = Math.Sin(2.0 * Math.PI * 2200.0 * (double)i / sampleRate);
+            samples[click2 + i] = (short)(tone * env * short.MaxValue);
         }
 
         return EncodeWav(samples, sampleRate);

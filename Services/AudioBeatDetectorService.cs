@@ -10,6 +10,7 @@ public class AudioBeatDetectorService : IDisposable
     private IAudioMeterInformation? _audioMeter;
     private float _lastPeak = 0f;
     private bool _isMusicPlaying = false;
+    private bool _initAttempted = false;
 
     public event Action<float>? BeatDetected;
     public event Action<bool>? MusicStateChanged;
@@ -19,32 +20,41 @@ public class AudioBeatDetectorService : IDisposable
 
     public AudioBeatDetectorService()
     {
-        InitializeMeter();
-
         _sampleTimer = new DispatcherTimer
         {
-            Interval = TimeSpan.FromMilliseconds(80) // 12.5 checks per second, ultra lightweight
+            Interval = TimeSpan.FromMilliseconds(100)
         };
         _sampleTimer.Tick += OnSampleTick;
-        _sampleTimer.Start();
+
+        // Enable CoreAudio beat detector
+        TryInitializeMeter();
+        if (_audioMeter != null) _sampleTimer.Start();
     }
 
-    private void InitializeMeter()
+    private void TryInitializeMeter()
     {
+        if (_initAttempted && _audioMeter != null) return;
+        _initAttempted = true;
+
         try
         {
             var enumerator = (IMMDeviceEnumerator)new MMDeviceEnumerator();
-            enumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out var device);
-            if (device != null)
+            int hr = enumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out var device);
+            if (hr == 0 && device != null)
             {
                 var iid = typeof(IAudioMeterInformation).GUID;
-                device.Activate(ref iid, 0, IntPtr.Zero, out var meterObj);
-                _audioMeter = meterObj as IAudioMeterInformation;
+                const int CLSCTX_ALL = 23;
+                hr = device.Activate(ref iid, CLSCTX_ALL, IntPtr.Zero, out var meterObj);
+                if (hr == 0 && meterObj is IAudioMeterInformation meter)
+                {
+                    _audioMeter = meter;
+                }
             }
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Audio meter init failed: {ex.Message}");
+            _audioMeter = null;
         }
     }
 
@@ -54,7 +64,8 @@ public class AudioBeatDetectorService : IDisposable
 
         try
         {
-            _audioMeter.GetPeakValue(out float currentPeak);
+            int hr = _audioMeter.GetPeakValue(out float currentPeak);
+            if (hr != 0) return;
 
             bool nowPlaying = currentPeak > 0.05f;
             if (nowPlaying != _isMusicPlaying)
@@ -73,9 +84,8 @@ public class AudioBeatDetectorService : IDisposable
         }
         catch
         {
-            // If device changed, try to re-initialize
+            // Do not crash under any circumstances
             _audioMeter = null;
-            InitializeMeter();
         }
     }
 
@@ -91,15 +101,26 @@ public class AudioBeatDetectorService : IDisposable
     [Guid("BCDE0395-E52F-467C-8E3D-C4579291692E")]
     private class MMDeviceEnumerator { }
 
-    private enum EDataFlow { eRender, eCapture, eAll }
-    private enum ERole { eConsole, eMultimedia, eCommunications }
+    private enum EDataFlow { eRender = 0, eCapture = 1, eAll = 2 }
+    private enum ERole { eConsole = 0, eMultimedia = 1, eCommunications = 2 }
 
     [Guid("A95664D2-9614-4F35-A746-DE8DB63617E6"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     private interface IMMDeviceEnumerator
     {
-        int NotImpl1();
+        [PreserveSig]
+        int EnumAudioEndpoints(EDataFlow dataFlow, int dwStateMask, out IntPtr ppDevices);
+
         [PreserveSig]
         int GetDefaultAudioEndpoint(EDataFlow dataFlow, ERole role, out IMMDevice ppDevice);
+
+        [PreserveSig]
+        int GetDevice([MarshalAs(UnmanagedType.LPWStr)] string pwstrId, out IMMDevice ppDevice);
+
+        [PreserveSig]
+        int RegisterEndpointNotificationCallback(IntPtr pClient);
+
+        [PreserveSig]
+        int UnregisterEndpointNotificationCallback(IntPtr pClient);
     }
 
     [Guid("D666063F-1587-4E43-81F1-B948E807363F"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -107,6 +128,15 @@ public class AudioBeatDetectorService : IDisposable
     {
         [PreserveSig]
         int Activate(ref Guid iid, int dwClsCtx, IntPtr pActivationParams, [MarshalAs(UnmanagedType.IUnknown)] out object ppInterface);
+
+        [PreserveSig]
+        int OpenPropertyStore(int stgmAccess, out IntPtr ppProperties);
+
+        [PreserveSig]
+        int GetId([MarshalAs(UnmanagedType.LPWStr)] out string ppstrId);
+
+        [PreserveSig]
+        int GetState(out int pdwState);
     }
 
     [Guid("C022167D-0308-4E45-83AC-87B5E2A0DFBA"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -114,6 +144,15 @@ public class AudioBeatDetectorService : IDisposable
     {
         [PreserveSig]
         int GetPeakValue(out float pfPeak);
+
+        [PreserveSig]
+        int GetMeteringChannelCount(out int pnChannelCount);
+
+        [PreserveSig]
+        int GetChannelsPeakValues(int u32ChannelCount, [In] IntPtr afPeakValues);
+
+        [PreserveSig]
+        int QueryHardwareSupport(out int pdwHardwareSupportMask);
     }
 
     #endregion

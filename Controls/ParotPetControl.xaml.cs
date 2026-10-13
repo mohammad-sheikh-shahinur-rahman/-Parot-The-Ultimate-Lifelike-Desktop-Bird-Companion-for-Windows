@@ -1,14 +1,15 @@
 using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Parot.Models;
-using UserControl = System.Windows.Controls.UserControl;
+using Parot.Services;
 using Color = System.Windows.Media.Color;
-using Point = System.Windows.Point;
-using ColorConverter = System.Windows.Media.ColorConverter;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace Parot.Controls;
 
@@ -17,18 +18,38 @@ public partial class ParotPetControl : UserControl
     private PetState _currentState = PetState.Idle;
     private readonly Random _random = new();
     private readonly DispatcherTimer _blinkTimer;
+    private readonly SpriteAnimationEngine _animEngine;
+
     private readonly Storyboard _breatheStoryboard;
     private readonly Storyboard _flapStoryboard;
     private readonly Storyboard _hopStoryboard;
     private readonly Storyboard _headTiltStoryboard;
     private readonly Storyboard _chirpStoryboard;
     private readonly Storyboard _danceStoryboard;
+    private readonly Storyboard _peckStoryboard;
+    private readonly Storyboard _preenStoryboard;
+    private readonly Storyboard _stretchStoryboard;
+    private readonly Storyboard _fluffStoryboard;
+    private readonly Storyboard _yawnStoryboard;
+    private readonly Storyboard _dizzyStoryboard;
+    private readonly Storyboard _waddleStoryboard;
+    private readonly Storyboard _perchFlapStoryboard;
+    private readonly Storyboard _curiousLookStoryboard;
+    private readonly Storyboard _beakWipeStoryboard;
+    private readonly Storyboard _headScratchStoryboard;
+    private readonly Storyboard _tailWagStoryboard;
+    private DispatcherTimer? _currentActionTimer;
 
     private bool _isFacingLeft = false;
+    private double _currentScale = 1.0;
     private string _currentSkin = "ScarletMacaw";
     private string _currentAccessory = "None";
 
+    private DateTime _cursorOnOtherSideStart = DateTime.MinValue;
+    private bool _pendingFaceLeft = false;
+
     public PetState CurrentState => _currentState;
+    public SpriteAnimationEngine AnimationEngine => _animEngine;
 
     public ParotPetControl()
     {
@@ -40,118 +61,90 @@ public partial class ParotPetControl : UserControl
         _headTiltStoryboard = (Storyboard)Resources["HeadTiltStoryboard"];
         _chirpStoryboard = (Storyboard)Resources["ChirpStoryboard"];
         _danceStoryboard = (Storyboard)Resources["DanceStoryboard"];
+        _peckStoryboard = (Storyboard)Resources["PeckStoryboard"];
+        _preenStoryboard = (Storyboard)Resources["PreenStoryboard"];
+        _stretchStoryboard = (Storyboard)Resources["StretchStoryboard"];
+        _fluffStoryboard = (Storyboard)Resources["FluffStoryboard"];
+        _yawnStoryboard = (Storyboard)Resources["YawnStoryboard"];
+        _dizzyStoryboard = (Storyboard)Resources["DizzyStoryboard"];
+        _waddleStoryboard = (Storyboard)Resources["WaddleStoryboard"];
+        _perchFlapStoryboard = (Storyboard)Resources["PerchFlapStoryboard"];
+        _curiousLookStoryboard = (Storyboard)Resources["CuriousLookStoryboard"];
+        _beakWipeStoryboard = (Storyboard)Resources["BeakWipeStoryboard"];
+        _headScratchStoryboard = (Storyboard)Resources["HeadScratchStoryboard"];
+        _tailWagStoryboard = (Storyboard)Resources["TailWagStoryboard"];
 
-        _breatheStoryboard.Begin();
+        _animEngine = new SpriteAnimationEngine();
+        _animEngine.FrameUpdated += OnAnimationFrameUpdated;
+        _animEngine.AnimationCompleted += OnAnimationCompleted;
 
-        _blinkTimer = new DispatcherTimer();
-        _blinkTimer.Interval = TimeSpan.FromSeconds(_random.Next(3, 6));
+        // Load multi-frame animations
+        string birdsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Birds", "Macaw");
+        _animEngine.LoadClipsFromDirectory(birdsPath);
+
+        _blinkTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(_random.Next(4, 9))
+        };
         _blinkTimer.Tick += OnBlinkTimerTick;
         _blinkTimer.Start();
 
-        ApplySkin("ScarletMacaw");
+        SetState(PetState.Idle);
+    }
+
+    private void OnAnimationFrameUpdated(BitmapSource frame)
+    {
+        BirdSpriteImage.Source = frame;
+    }
+
+    private void OnAnimationCompleted(string clipName)
+    {
+        if (clipName == "Landing" || clipName == "Hop" || clipName == "Blink")
+        {
+            if (_currentState == PetState.Landing || _currentState == PetState.Hopping || _currentState == PetState.Blinking)
+            {
+                SetState(PetState.Idle);
+            }
+        }
+    }
+
+    public void SetBankAngle(double angle)
+    {
+        BirdRotateTransform.Angle = angle;
     }
 
     public void ApplySkin(string skin)
     {
-        _currentSkin = skin;
-
-        switch (skin)
+        _currentSkin = string.IsNullOrWhiteSpace(skin) ? "ScarletMacaw" : skin;
+        string birdsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Birds", _currentSkin);
+        if (!Directory.Exists(birdsPath))
         {
-            case "GreenParakeet":
-                CockatielCrest.Visibility = Visibility.Collapsed;
-                MacawFaceMask.Visibility = Visibility.Collapsed;
-                FaceStripes.Visibility = Visibility.Collapsed;
-
-                BodyMainPath.Fill = CreateLinearBrush("#4ADE80", "#22C55E", "#15803D");
-                HeadBasePath.Fill = CreateLinearBrush("#4ADE80", "#22C55E", "#16A34A");
-                BellyPath.Fill = CreateRadialBrush("#BBF7D0", "#86EFAC");
-                LeftWing.Fill = new SolidColorBrush(Color.FromRgb(21, 128, 61));
-                WingRedCoverts.Fill = new SolidColorBrush(Color.FromRgb(34, 197, 94));
-                WingYellowBand.Fill = new SolidColorBrush(Color.FromRgb(22, 163, 74));
-                WingBluePrimaries.Fill = new SolidColorBrush(Color.FromRgb(21, 128, 61));
-                UpperBeak.Fill = CreateLinearBrush("#F97316", "#EA580C", "#DC2626");
-                LowerBeak.Fill = new SolidColorBrush(Color.FromRgb(194, 65, 12));
-                TailFeatherPath.Fill = CreateLinearBrush("#059669", "#0D9488", "#0284C7");
-                TailOuterBlueLeft.Fill = new SolidColorBrush(Color.FromRgb(5, 150, 105));
-                TailOuterBlueRight.Fill = new SolidColorBrush(Color.FromRgb(2, 132, 199));
-                Eyelid.Fill = new SolidColorBrush(Color.FromRgb(34, 197, 94));
-                break;
-
-            case "Cockatiel":
-                CockatielCrest.Visibility = Visibility.Visible;
-                MacawFaceMask.Visibility = Visibility.Collapsed;
-                FaceStripes.Visibility = Visibility.Collapsed;
-
-                BodyMainPath.Fill = CreateLinearBrush("#FEF08A", "#FACC15", "#EAB308");
-                HeadBasePath.Fill = CreateLinearBrush("#FEF9C3", "#FDE047", "#FACC15");
-                BellyPath.Fill = CreateRadialBrush("#FEFCE8", "#FEF08A");
-                LeftWing.Fill = new SolidColorBrush(Color.FromRgb(202, 138, 4));
-                WingRedCoverts.Fill = new SolidColorBrush(Color.FromRgb(234, 179, 8));
-                WingYellowBand.Fill = new SolidColorBrush(Color.FromRgb(250, 204, 21));
-                WingBluePrimaries.Fill = new SolidColorBrush(Color.FromRgb(148, 163, 184));
-                UpperBeak.Fill = CreateLinearBrush("#94A3B8", "#64748B", "#475569");
-                LowerBeak.Fill = new SolidColorBrush(Color.FromRgb(71, 85, 105));
-                TailFeatherPath.Fill = CreateLinearBrush("#EAB308", "#CA8A04", "#A16207");
-                TailOuterBlueLeft.Fill = new SolidColorBrush(Color.FromRgb(202, 138, 4));
-                TailOuterBlueRight.Fill = new SolidColorBrush(Color.FromRgb(161, 98, 7));
-                Eyelid.Fill = new SolidColorBrush(Color.FromRgb(250, 204, 21));
-                break;
-
-            case "BlueMacaw":
-                CockatielCrest.Visibility = Visibility.Collapsed;
-                MacawFaceMask.Visibility = Visibility.Visible;
-                FaceStripes.Visibility = Visibility.Visible;
-                FaceStripes.Stroke = new SolidColorBrush(Color.FromRgb(15, 23, 42));
-
-                BodyMainPath.Fill = CreateLinearBrush("#2563EB", "#1D4ED8", "#1E40AF");
-                HeadBasePath.Fill = CreateLinearBrush("#3B82F6", "#2563EB", "#1D4ED8");
-                BellyPath.Fill = CreateRadialBrush("#FEF08A", "#FBBF24");
-                LeftWing.Fill = new SolidColorBrush(Color.FromRgb(30, 64, 175));
-                WingRedCoverts.Fill = new SolidColorBrush(Color.FromRgb(29, 78, 216));
-                WingYellowBand.Fill = CreateLinearBrush("#60A5FA", "#3B82F6", "#2563EB");
-                WingBluePrimaries.Fill = CreateLinearBrush("#1D4ED8", "#1E40AF", "#172554");
-                UpperBeak.Fill = CreateLinearBrush("#334155", "#1E293B", "#0F172A");
-                LowerBeak.Fill = new SolidColorBrush(Color.FromRgb(15, 23, 42));
-                TailFeatherPath.Fill = CreateLinearBrush("#2563EB", "#1D4ED8", "#0284C7");
-                TailOuterBlueLeft.Fill = new SolidColorBrush(Color.FromRgb(29, 78, 216));
-                TailOuterBlueRight.Fill = new SolidColorBrush(Color.FromRgb(2, 132, 199));
-                Eyelid.Fill = new SolidColorBrush(Color.FromRgb(37, 99, 235));
-                break;
-
-            default: // 🦜 REALISTIC SCARLET MACAW (Ara macao) - EXACT TO USER PHOTOS!
-                CockatielCrest.Visibility = Visibility.Collapsed;
-                MacawFaceMask.Visibility = Visibility.Visible;
-                FaceStripes.Visibility = Visibility.Visible;
-                FaceStripes.Stroke = new SolidColorBrush(Color.FromRgb(220, 38, 38));
-
-                BodyMainPath.Fill = CreateLinearBrush("#F87171", "#EF4444", "#DC2626");
-                HeadBasePath.Fill = CreateLinearBrush("#F87171", "#EF4444", "#DC2626");
-                BellyPath.Fill = CreateRadialBrush("#FCA5A5", "#EF4444");
-                LeftWing.Fill = new SolidColorBrush(Color.FromRgb(185, 28, 28));
-
-                // Layered Wing Coverts: Scarlet Red -> Canary Yellow -> Cobalt Blue
-                WingRedCoverts.Fill = new SolidColorBrush(Color.FromRgb(220, 38, 38));
-                WingYellowBand.Fill = CreateLinearBrush("#FDE047", "#FACC15", "#EAB308");
-                WingBluePrimaries.Fill = CreateLinearBrush("#3B82F6", "#2563EB", "#1D4ED8");
-
-                // Beak: Ivory/Pale Horn upper, Charcoal lower
-                UpperBeak.Fill = CreateLinearBrush("#FFFFFF", "#FEF3C7", "#FDE68A");
-                LowerBeak.Fill = new SolidColorBrush(Color.FromRgb(15, 23, 42));
-
-                // Tail: Long Scarlet Central, Royal Blue Outer
-                TailFeatherPath.Fill = CreateLinearBrush("#EF4444", "#DC2626", "#B91C1C");
-                TailOuterBlueLeft.Fill = new SolidColorBrush(Color.FromRgb(29, 78, 216));
-                TailOuterBlueRight.Fill = new SolidColorBrush(Color.FromRgb(37, 99, 235));
-
-                Eyelid.Fill = new SolidColorBrush(Color.FromRgb(220, 38, 38));
-                break;
+            birdsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Birds", "Macaw");
         }
+        if (Directory.Exists(birdsPath))
+        {
+            _animEngine.LoadClipsFromDirectory(birdsPath);
+            SetState(_currentState);
+        }
+    }
+
+    public void BobHead()
+    {
+        if (_currentState == PetState.Sleeping || _currentState == PetState.NightSleeping || _currentState == PetState.Eating) return;
+        _chirpStoryboard.Begin();
     }
 
     public void SetAccessory(string accessory)
     {
         _currentAccessory = accessory;
 
+        if (_currentState == PetState.Flying || _currentState == PetState.FollowCursor || _currentState == PetState.TakeOff || _currentState == PetState.Landing || _currentState == PetState.FlappingWings || _currentState == PetState.Dragged)
+        {
+            AccessoriesCanvas.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        AccessoriesCanvas.Visibility = Visibility.Visible;
         AccessoryGlasses.Visibility = accessory == "Glasses" ? Visibility.Visible : Visibility.Collapsed;
         AccessorySunglasses.Visibility = accessory == "Sunglasses" ? Visibility.Visible : Visibility.Collapsed;
         AccessoryScarf.Visibility = accessory == "Scarf" ? Visibility.Visible : Visibility.Collapsed;
@@ -161,6 +154,15 @@ public partial class ParotPetControl : UserControl
         AccessoryNightcap.Visibility = accessory == "Nightcap" ? Visibility.Visible : Visibility.Collapsed;
     }
 
+    private bool _isCageMode = false;
+    public bool IsCageMode => _isCageMode;
+
+    public void SetCageMode(bool isCaged)
+    {
+        _isCageMode = isCaged;
+        BirdCageCanvas.Visibility = isCaged ? Visibility.Visible : Visibility.Collapsed;
+    }
+
     public void SetFacing(bool faceLeft)
     {
         if (_isFacingLeft == faceLeft) return;
@@ -168,172 +170,425 @@ public partial class ParotPetControl : UserControl
 
         var anim = new DoubleAnimation
         {
-            To = faceLeft ? -1 : 1,
-            Duration = TimeSpan.FromMilliseconds(180)
+            To = faceLeft ? -_currentScale : _currentScale,
+            Duration = TimeSpan.FromMilliseconds(160)
         };
         RootScaleTransform.BeginAnimation(ScaleTransform.ScaleXProperty, anim);
     }
 
     public void SetScale(double scale)
     {
-        scale = Math.Clamp(scale, 0.6, 2.0);
-        RootScaleTransform.ScaleY = scale;
-        RootScaleTransform.ScaleX = _isFacingLeft ? -scale : scale;
+        _currentScale = Math.Clamp(scale, 0.6, 2.0);
+        RootScaleTransform.ScaleY = _currentScale;
+        RootScaleTransform.ScaleX = _isFacingLeft ? -_currentScale : _currentScale;
     }
 
     private void OnBlinkTimerTick(object? sender, EventArgs e)
     {
-        if (_currentState == PetState.Sleeping || _currentState == PetState.NightSleeping || _currentState == PetState.Happy) return;
+        if (_currentState == PetState.Sleeping || _currentState == PetState.NightSleeping || _currentState == PetState.Flying) return;
 
         TriggerBlink();
-        _blinkTimer.Interval = TimeSpan.FromSeconds(_random.Next(3, 7));
+        _blinkTimer.Interval = TimeSpan.FromSeconds(_random.Next(4, 9));
     }
 
     public void TriggerBlink()
     {
-        if (_currentState == PetState.Sleeping || _currentState == PetState.NightSleeping) return;
-
-        var blinkAnim = new DoubleAnimationUsingKeyFrames();
-        blinkAnim.KeyFrames.Add(new LinearDoubleKeyFrame(0, KeyTime.FromTimeSpan(TimeSpan.Zero)));
-        blinkAnim.KeyFrames.Add(new LinearDoubleKeyFrame(22, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(70))));
-        blinkAnim.KeyFrames.Add(new LinearDoubleKeyFrame(0, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(160))));
-
-        Eyelid.BeginAnimation(HeightProperty, blinkAnim);
+        if (_currentState == PetState.Idle)
+        {
+            _animEngine.Play("Blink");
+        }
     }
 
     public void LookAt(double deltaX, double deltaY)
     {
-        if (_currentState == PetState.Sleeping || _currentState == PetState.NightSleeping || _currentState == PetState.Dragged) return;
+        if (_currentState == PetState.Sleeping || _currentState == PetState.NightSleeping || _currentState == PetState.Dragged || _currentState == PetState.Flying || _currentState == PetState.Eating) return;
 
-        double maxOffset = 3.5;
-        double angle = Math.Atan2(deltaY, deltaX);
-        double dist = Math.Min(Math.Sqrt(deltaX * deltaX + deltaY * deltaY), 300);
-        double factor = dist / 300.0;
+        // Subtle, natural head tilt towards cursor height (zero body jitter)
+        BirdTranslateTransform.X = 0;
+        double tiltAngle = Math.Clamp(deltaY * 0.03, -4.0, 4.0);
+        BirdRotateTransform.Angle = tiltAngle;
 
-        double targetX = Math.Cos(angle) * maxOffset * factor;
-        double targetY = Math.Sin(angle) * (maxOffset * 0.7) * factor;
+        // Hysteresis facing: Only turn body around if cursor has stayed on the other side for > 3.5 seconds and is close
+        bool wantsFaceLeft = deltaX < 0;
+        double dist = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
 
-        if (_isFacingLeft) targetX = -targetX;
+        if (wantsFaceLeft != _isFacingLeft)
+        {
+            if (!_pendingFaceLeft)
+            {
+                _pendingFaceLeft = true;
+                _cursorOnOtherSideStart = DateTime.Now;
+            }
+            else if ((DateTime.Now - _cursorOnOtherSideStart).TotalSeconds >= 3.5 && dist < 260)
+            {
+                SetFacing(wantsFaceLeft);
+                _pendingFaceLeft = false;
+            }
+        }
+        else
+        {
+            _pendingFaceLeft = false;
+        }
+    }
 
-        PupilTranslate.X = targetX;
-        PupilTranslate.Y = targetY;
+    public void ClearTransientEffects()
+    {
+        SleepParticles.BeginAnimation(OpacityProperty, null);
+        SleepParticles.Opacity = 0;
+        DreamBubble.BeginAnimation(OpacityProperty, null);
+        DreamBubble.Opacity = 0;
+        DizzyParticle.BeginAnimation(OpacityProperty, null);
+        DizzyParticle.Opacity = 0;
+        HeartParticle.BeginAnimation(OpacityProperty, null);
+        HeartParticle.Opacity = 0;
+        NoteParticle.BeginAnimation(OpacityProperty, null);
+        NoteParticle.Opacity = 0;
+    }
+
+    public void StopAllActionStoryboards()
+    {
+        _currentActionTimer?.Stop();
+        _currentActionTimer = null;
+
+        _flapStoryboard.Stop();
+        _danceStoryboard.Stop();
+        _breatheStoryboard.Stop();
+        _waddleStoryboard.Stop();
+        _perchFlapStoryboard.Stop();
+        _curiousLookStoryboard.Stop();
+        _headTiltStoryboard.Stop();
+        _peckStoryboard.Stop();
+        _preenStoryboard.Stop();
+        _stretchStoryboard.Stop();
+        _fluffStoryboard.Stop();
+        _yawnStoryboard.Stop();
+        _dizzyStoryboard.Stop();
+        _beakWipeStoryboard.Stop();
+        _headScratchStoryboard.Stop();
+        _tailWagStoryboard.Stop();
+
+        BirdRotateTransform.Angle = 0;
+        BirdTranslateTransform.X = 0;
+        BirdTranslateTransform.Y = 0;
     }
 
     public void SetState(PetState state)
     {
         _currentState = state;
 
+        if (GroundContactShadow != null)
+        {
+            GroundContactShadow.Visibility = (state == PetState.Flying || state == PetState.TakeOff || state == PetState.Dragged)
+                ? Visibility.Collapsed
+                : Visibility.Visible;
+        }
+
+        // Clean up transient particle overlays unless actively sleeping
+        if (state != PetState.Sleeping && state != PetState.NightSleeping)
+        {
+            ClearTransientEffects();
+        }
+
+        // Always stop conflicting storyboards when switching fundamental activity states
+        if (state == PetState.Flying || state == PetState.TakeOff || state == PetState.Landing || state == PetState.Dragged || state == PetState.Idle || state == PetState.Perching || state == PetState.Sleeping || state == PetState.NightSleeping)
+        {
+            StopAllActionStoryboards();
+        }
+
         switch (state)
         {
             case PetState.Idle:
-                ShowAwakeEye();
-                _flapStoryboard.Stop();
-                _danceStoryboard.Stop();
-                _breatheStoryboard.SetSpeedRatio(1.0);
-                SleepParticles.Opacity = 0;
+            case PetState.Perching:
                 SetAccessory(_currentAccessory);
+                _animEngine.Play("Idle");
+                break;
+
+            case PetState.Blinking:
+                _animEngine.Play("Blink");
+                break;
+
+            case PetState.Hopping:
+                _animEngine.Play("Hop");
+                _hopStoryboard.Begin();
+                break;
+
+            case PetState.TakeOff:
+                AccessoriesCanvas.Visibility = Visibility.Collapsed;
+                _animEngine.Play("TakeOff");
+                break;
+
+            case PetState.Flying:
+            case PetState.FollowCursor:
+                AccessoriesCanvas.Visibility = Visibility.Collapsed;
+                _animEngine.Play("Flying");
+                break;
+
+            case PetState.Landing:
+                AccessoriesCanvas.Visibility = Visibility.Collapsed;
+                _animEngine.Play("Landing");
+                break;
+
+            case PetState.FlappingWings:
+                AccessoriesCanvas.Visibility = Visibility.Collapsed;
+                _animEngine.Play("Flying");
+                _perchFlapStoryboard.Begin();
+                break;
+
+            case PetState.Dragged:
+                AccessoriesCanvas.Visibility = Visibility.Collapsed;
+                _animEngine.Play("Flying");
                 break;
 
             case PetState.Dancing:
-                ShowHappyEye();
-                _flapStoryboard.Stop();
+                _animEngine.Play("Idle");
                 _danceStoryboard.Begin();
                 AnimateMusicNote();
                 break;
 
-            case PetState.PomodoroFocus:
-                ShowAwakeEye();
-                _flapStoryboard.Stop();
-                _danceStoryboard.Stop();
-                SetAccessory("Glasses");
-                break;
-
-            case PetState.PomodoroBreak:
-                ShowHappyEye();
-                _flapStoryboard.Begin();
-                AnimateHearts();
-                AnimateMusicNote();
-                SetAccessory("PartyHat");
-                break;
-
-            case PetState.CuriousHeadTilt:
-                ShowAwakeEye();
-                _headTiltStoryboard.Begin();
-                break;
-
-            case PetState.FlappingWings:
-                ShowAwakeEye();
-                _flapStoryboard.Begin();
-                break;
-
-            case PetState.Dragged:
-                ShowAwakeEye();
-                _flapStoryboard.Begin();
-                break;
-
-            case PetState.Hopping:
-                ShowAwakeEye();
-                _hopStoryboard.Begin();
-                break;
-
             case PetState.Sleeping:
-                ShowSleepEye();
-                _flapStoryboard.Stop();
-                _danceStoryboard.Stop();
-                _breatheStoryboard.SetSpeedRatio(0.5);
+                _animEngine.Play("Sleep");
                 AnimateSleepZzz();
                 break;
 
             case PetState.NightSleeping:
-                ShowSleepEye();
-                _flapStoryboard.Stop();
-                _danceStoryboard.Stop();
-                _breatheStoryboard.SetSpeedRatio(0.4);
+                _animEngine.Play("Sleep");
                 SetAccessory("Nightcap");
                 AnimateSleepZzz();
                 break;
 
             case PetState.Happy:
-                ShowHappyEye();
-                _flapStoryboard.Stop();
-                _danceStoryboard.Stop();
+                _animEngine.Play("Idle");
                 AnimateHearts();
                 _chirpStoryboard.Begin();
                 break;
 
             case PetState.Eating:
-                ShowHappyEye();
                 _chirpStoryboard.Begin();
                 AnimateTreatEat();
                 break;
 
             case PetState.Speaking:
-                ShowAwakeEye();
+                _animEngine.Play("Idle");
                 _chirpStoryboard.Begin();
+                break;
+
+            case PetState.PomodoroFocus:
+                _animEngine.Play("Idle");
+                _breatheStoryboard.SetSpeedRatio(0.85);
+                SetAccessory("Glasses");
+                break;
+
+            case PetState.PomodoroBreak:
+                _animEngine.Play("Idle");
+                _danceStoryboard.Begin();
+                AnimateHearts();
+                AnimateMusicNote();
+                SetAccessory("PartyHat");
+                break;
+
+            case PetState.Walking:
+                _animEngine.Play("Idle");
+                _waddleStoryboard.Begin();
+                break;
+
+            case PetState.PeekingEdge:
+                _animEngine.Play("Idle");
+                _headTiltStoryboard.Begin();
+                break;
+
+            case PetState.Preening:
+                _animEngine.Play("Idle");
+                _preenStoryboard.Begin();
+                break;
+
+            case PetState.Stretching:
+                _animEngine.Play("Idle");
+                _stretchStoryboard.Begin();
+                break;
+
+            case PetState.Fluffing:
+                _animEngine.Play("Idle");
+                _fluffStoryboard.Begin();
+                break;
+
+            case PetState.Yawning:
+                _animEngine.Play("Idle");
+                _yawnStoryboard.Begin();
+                break;
+
+            case PetState.CuriousHeadTilt:
+                _animEngine.Play("Idle");
+                _curiousLookStoryboard.Begin();
+                break;
+
+            case PetState.BeakWiping:
+                _animEngine.Play("Idle");
+                _beakWipeStoryboard.Begin();
+                break;
+
+            case PetState.HeadScratching:
+                _animEngine.Play("Idle");
+                _headScratchStoryboard.Begin();
+                break;
+
+            case PetState.TailWagging:
+                _animEngine.Play("Idle");
+                _tailWagStoryboard.Begin();
+                break;
+
+            case PetState.Dizzy:
+                _animEngine.Play("Idle");
+                _dizzyStoryboard.Begin();
+                AnimateDizzyStars();
                 break;
         }
     }
 
-    private void ShowAwakeEye()
+    private void StartAction(PetState state, TimeSpan duration, Action? onFinish)
     {
-        AwakeEye.Visibility = Visibility.Visible;
-        HappyEye.Visibility = Visibility.Collapsed;
-        SleepEye.Visibility = Visibility.Collapsed;
-        Eyelid.Height = 0;
+        _currentActionTimer?.Stop();
+        SetState(state);
+
+        _currentActionTimer = new DispatcherTimer { Interval = duration };
+        _currentActionTimer.Tick += (s, e) =>
+        {
+            _currentActionTimer?.Stop();
+            _currentActionTimer = null;
+            if (_currentState == state)
+            {
+                SetState(PetState.Idle);
+                onFinish?.Invoke();
+            }
+        };
+        _currentActionTimer.Start();
     }
 
-    private void ShowHappyEye()
+    public void FlapWingsOnPerch(Action? onCompleted = null)
     {
-        AwakeEye.Visibility = Visibility.Collapsed;
-        HappyEye.Visibility = Visibility.Visible;
-        SleepEye.Visibility = Visibility.Collapsed;
+        StartAction(PetState.FlappingWings, TimeSpan.FromSeconds(1.6), () =>
+        {
+            _perchFlapStoryboard.Stop();
+            onCompleted?.Invoke();
+        });
     }
 
-    private void ShowSleepEye()
+    public void CuriousLookAround(Action? onCompleted = null)
     {
-        AwakeEye.Visibility = Visibility.Collapsed;
-        HappyEye.Visibility = Visibility.Collapsed;
-        SleepEye.Visibility = Visibility.Visible;
+        StartAction(PetState.CuriousHeadTilt, TimeSpan.FromSeconds(2.0), () =>
+        {
+            _curiousLookStoryboard.Stop();
+            onCompleted?.Invoke();
+        });
+    }
+
+    public void PreenFeathers(Action? onCompleted = null)
+    {
+        StartAction(PetState.Preening, TimeSpan.FromSeconds(1.8), () =>
+        {
+            _preenStoryboard.Stop();
+            onCompleted?.Invoke();
+        });
+    }
+
+    public void StretchWing(Action? onCompleted = null)
+    {
+        StartAction(PetState.Stretching, TimeSpan.FromSeconds(2.0), () =>
+        {
+            _stretchStoryboard.Stop();
+            onCompleted?.Invoke();
+        });
+    }
+
+    public void FluffFeathers(Action? onCompleted = null)
+    {
+        StartAction(PetState.Fluffing, TimeSpan.FromSeconds(0.75), () =>
+        {
+            _fluffStoryboard.Stop();
+            onCompleted?.Invoke();
+        });
+    }
+
+    public void Yawn(Action? onCompleted = null)
+    {
+        StartAction(PetState.Yawning, TimeSpan.FromSeconds(1.9), () =>
+        {
+            _yawnStoryboard.Stop();
+            onCompleted?.Invoke();
+        });
+    }
+
+    public void BeakWipe(Action? onCompleted = null)
+    {
+        StartAction(PetState.BeakWiping, TimeSpan.FromSeconds(1.6), () =>
+        {
+            _beakWipeStoryboard.Stop();
+            onCompleted?.Invoke();
+        });
+    }
+
+    public void HeadScratch(Action? onCompleted = null)
+    {
+        StartAction(PetState.HeadScratching, TimeSpan.FromSeconds(1.4), () =>
+        {
+            _headScratchStoryboard.Stop();
+            onCompleted?.Invoke();
+        });
+    }
+
+    public void TailWag(Action? onCompleted = null)
+    {
+        StartAction(PetState.TailWagging, TimeSpan.FromSeconds(0.85), () =>
+        {
+            _tailWagStoryboard.Stop();
+            onCompleted?.Invoke();
+        });
+    }
+
+    public void MakeDizzy(Action? onCompleted = null)
+    {
+        StartAction(PetState.Dizzy, TimeSpan.FromSeconds(1.5), () =>
+        {
+            _dizzyStoryboard.Stop();
+            onCompleted?.Invoke();
+        });
+    }
+
+    public void AnimateDizzyStars()
+    {
+        DizzyParticle.Opacity = 1;
+        var moveUp = new DoubleAnimation
+        {
+            From = 0,
+            To = -18,
+            Duration = TimeSpan.FromSeconds(1.4),
+            EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+        };
+        var fade = new DoubleAnimation
+        {
+            From = 1,
+            To = 0,
+            Duration = TimeSpan.FromSeconds(1.4)
+        };
+        fade.Completed += (s, e) => DizzyParticle.Opacity = 0;
+        DizzyTranslate.BeginAnimation(TranslateTransform.YProperty, moveUp);
+        DizzyParticle.BeginAnimation(OpacityProperty, fade);
+    }
+
+    public void StartWaddling()
+    {
+        _waddleStoryboard.Begin();
+    }
+
+    public void StopWaddling()
+    {
+        _waddleStoryboard.Stop();
+        BirdRotateTransform.Angle = 0;
+        BirdTranslateTransform.Y = 0;
+    }
+
+    public void ApplyTimeOfDayLighting(int hour)
+    {
+        // Pure transparent background: no ambient tint box overlay
     }
 
     public void AnimateHearts()
@@ -389,50 +644,58 @@ public partial class ParotPetControl : UserControl
             Duration = TimeSpan.FromSeconds(0.8)
         };
         SleepParticles.BeginAnimation(OpacityProperty, fade);
+        DreamBubble.BeginAnimation(OpacityProperty, fade);
     }
 
-    private void AnimateTreatEat()
+    public void PeckAndEat(string emoji = "🐞", Action? onPeckSound = null, Action? onCompleted = null)
     {
+        _currentState = PetState.Eating;
+        _flapStoryboard.Stop();
+        _danceStoryboard.Stop();
+        _breatheStoryboard.Stop();
+
+        TreatItem.Text = emoji;
         TreatItem.Opacity = 1;
-        var drop = new DoubleAnimation
+        TreatTranslate.Y = 0;
+
+        // Perform 3 realistic downward pecks
+        _peckStoryboard.Begin();
+        onPeckSound?.Invoke();
+
+        var peckTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(240) };
+        int peckCount = 1;
+        peckTimer.Tick += (s, e) =>
         {
-            From = -25,
-            To = 20,
-            Duration = TimeSpan.FromMilliseconds(450),
-            EasingFunction = new BounceEase { Bounces = 1, Bounciness = 2 }
+            peckCount++;
+            onPeckSound?.Invoke();
+            if (peckCount >= 3)
+            {
+                peckTimer.Stop();
+            }
         };
+        peckTimer.Start();
+
+        // Fade out food item right as 3rd peck finishes
         var fade = new DoubleAnimation
         {
             From = 1,
             To = 0,
-            BeginTime = TimeSpan.FromMilliseconds(400),
-            Duration = TimeSpan.FromMilliseconds(200)
+            BeginTime = TimeSpan.FromMilliseconds(620),
+            Duration = TimeSpan.FromMilliseconds(180)
         };
         fade.Completed += (s, e) =>
         {
             TreatItem.Opacity = 0;
             AnimateHearts();
+            onCompleted?.Invoke();
             SetState(PetState.Idle);
         };
 
-        TreatTranslate.BeginAnimation(TranslateTransform.YProperty, drop);
         TreatItem.BeginAnimation(OpacityProperty, fade);
     }
 
-    private static LinearGradientBrush CreateLinearBrush(string c1, string c2, string c3)
+    private void AnimateTreatEat()
     {
-        var b = new LinearGradientBrush { StartPoint = new Point(0.2, 0), EndPoint = new Point(0.8, 1) };
-        b.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(c1), 0));
-        b.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(c2), 0.5));
-        b.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(c3), 1));
-        return b;
-    }
-
-    private static RadialGradientBrush CreateRadialBrush(string c1, string c2)
-    {
-        var b = new RadialGradientBrush { Center = new Point(0.6, 0.6), RadiusX = 0.6, RadiusY = 0.6 };
-        b.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(c1), 0));
-        b.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(c2), 1));
-        return b;
+        PeckAndEat("🌶️");
     }
 }
