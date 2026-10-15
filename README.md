@@ -5,7 +5,7 @@
 
 [![Windows 10/11](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://apps.microsoft.com/detail/9NDQ2S4Q0RJT)
 [![.NET 8.0](https://img.shields.io/badge/.NET-8.0%20WPF-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
-[![Unit Tests](https://img.shields.io/badge/Tests-67%2F67%20Passing-brightgreen?style=for-the-badge&logo=checkmarx&logoColor=white)](#-testing--verification)
+[![Unit Tests](https://img.shields.io/badge/Tests-70%2F70%20Passing-brightgreen?style=for-the-badge&logo=checkmarx&logoColor=white)](#-testing--verification)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 [![Microsoft Store](https://img.shields.io/badge/Microsoft%20Store-9NDQ2S4Q0RJT-00a4ef?style=for-the-badge&logo=microsoft&logoColor=white)](https://apps.microsoft.com/detail/9NDQ2S4Q0RJT)
 
@@ -202,7 +202,7 @@ dotnet publish Parot.csproj -c Release -o dist
 
 ### 3. Generate Microsoft Store MSIX Package
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\build-msix.ps1 -Version "1.0.1.0"
+powershell -ExecutionPolicy Bypass -File .\build-msix.ps1 -Version "1.0.2.0"
 ```
 The output package will be generated at `./Parot.msix`, ready for direct upload to Microsoft Partner Center!
 

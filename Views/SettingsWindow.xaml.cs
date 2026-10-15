@@ -97,11 +97,96 @@ public partial class SettingsWindow : Window
         CmbLanguage.SelectedIndex = _current.Language switch
         {
             "Bengali" => 1,
-            "English" => 2,
-            "Hindi" => 3,
-            "Spanish" => 4,
+            "Hindi" => 2,
+            "Spanish" => 3,
+            "Bilingual" => 4,
             _ => 0
         };
+        ApplyLanguage(_current.Language);
+    }
+
+    private void CmbLanguage_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (CmbLanguage == null || CmbLanguage.SelectedIndex < 0) return;
+        string selectedLang = CmbLanguage.SelectedIndex switch
+        {
+            1 => "Bengali",
+            2 => "Hindi",
+            3 => "Spanish",
+            4 => "Bilingual",
+            _ => "English"
+        };
+        ApplyLanguage(selectedLang);
+    }
+
+    public void ApplyLanguage(string lang)
+    {
+        Title = LocalizationService.Get("Settings_Title", lang);
+        if (TxtSettingsSubtitle != null) TxtSettingsSubtitle.Text = LocalizationService.Get("Settings_Subtitle", lang);
+
+        if (TxtCard1Title != null) TxtCard1Title.Text = LocalizationService.Get("Settings_CardSkins", lang);
+        if (TxtLabelSkin != null) TxtLabelSkin.Text = LocalizationService.Get("Settings_LabelSpecies", lang);
+        if (TxtLabelAccessory != null) TxtLabelAccessory.Text = LocalizationService.Get("Settings_LabelAccessories", lang);
+        if (TxtLabelPerchMode != null) TxtLabelPerchMode.Text = LocalizationService.Get("Settings_LabelPerchMode", lang);
+
+        if (CmbSkin != null && CmbSkin.Items.Count >= 4)
+        {
+            ((ComboBoxItem)CmbSkin.Items[0]).Content = LocalizationService.Get("MenuSkin_Scarlet", lang);
+            ((ComboBoxItem)CmbSkin.Items[1]).Content = LocalizationService.Get("MenuSkin_Parakeet", lang);
+            ((ComboBoxItem)CmbSkin.Items[2]).Content = LocalizationService.Get("MenuSkin_Cockatiel", lang);
+            ((ComboBoxItem)CmbSkin.Items[3]).Content = LocalizationService.Get("MenuSkin_BlueMacaw", lang);
+        }
+
+        if (CmbAccessory != null && CmbAccessory.Items.Count >= 7)
+        {
+            ((ComboBoxItem)CmbAccessory.Items[0]).Content = LocalizationService.Get("MenuAcc_None", lang);
+            ((ComboBoxItem)CmbAccessory.Items[1]).Content = LocalizationService.Get("MenuAcc_Glasses", lang);
+            ((ComboBoxItem)CmbAccessory.Items[2]).Content = LocalizationService.Get("MenuAcc_Sunglasses", lang);
+            ((ComboBoxItem)CmbAccessory.Items[3]).Content = LocalizationService.Get("MenuAcc_Scarf", lang);
+            ((ComboBoxItem)CmbAccessory.Items[4]).Content = LocalizationService.Get("MenuAcc_TopHat", lang);
+            ((ComboBoxItem)CmbAccessory.Items[5]).Content = LocalizationService.Get("MenuAcc_PartyHat", lang);
+            ((ComboBoxItem)CmbAccessory.Items[6]).Content = LocalizationService.Get("MenuAcc_Umbrella", lang);
+        }
+
+        if (CmbPerchMode != null && CmbPerchMode.Items.Count >= 2)
+        {
+            ((ComboBoxItem)CmbPerchMode.Items[0]).Content = LocalizationService.Get("PerchDesktop", lang);
+            ((ComboBoxItem)CmbPerchMode.Items[1]).Content = LocalizationService.Get("PerchActiveWindow", lang);
+        }
+
+        if (TxtCard2Title != null) TxtCard2Title.Text = LocalizationService.Get("Settings_CardPomodoro", lang);
+        if (TxtLabelPomodoroFocus != null) TxtLabelPomodoroFocus.Text = LocalizationService.Get("Settings_LabelFocus", lang);
+        if (TxtLabelPomodoroBreak != null) TxtLabelPomodoroBreak.Text = LocalizationService.Get("Settings_LabelBreak", lang);
+        if (ChkDanceToMusic != null) ChkDanceToMusic.Content = LocalizationService.Get("Settings_ChkDanceMusic", lang);
+        if (ChkNightModeAuto != null) ChkNightModeAuto.Content = LocalizationService.Get("Settings_ChkNightMode", lang);
+
+        if (TxtCard3Title != null) TxtCard3Title.Text = LocalizationService.Get("Settings_CardAI", lang);
+        if (ChkVoiceMimic != null) ChkVoiceMimic.Content = LocalizationService.Get("Settings_ChkVoiceMimic", lang);
+        if (TxtLabelGeminiKey != null) TxtLabelGeminiKey.Text = LocalizationService.Get("Settings_LabelGeminiKey", lang);
+
+        if (TxtCard4Title != null) TxtCard4Title.Text = LocalizationService.Get("Settings_CardBehavior", lang);
+        if (TxtLabelScale != null) TxtLabelScale.Text = LocalizationService.Get("Settings_LabelScale", lang);
+        if (ChkAlwaysOnTop != null) ChkAlwaysOnTop.Content = LocalizationService.Get("Settings_ChkAlwaysOnTop", lang);
+        if (ChkAllowWalking != null) ChkAllowWalking.Content = LocalizationService.Get("Settings_ChkAllowWalking", lang);
+        if (ChkAutonomousFlight != null) ChkAutonomousFlight.Content = LocalizationService.Get("Settings_ChkAutonomousFlight", lang);
+        if (ChkBirdcageMode != null) ChkBirdcageMode.Content = LocalizationService.Get("Settings_ChkBirdcage", lang);
+        if (ChkFollowCursor != null) ChkFollowCursor.Content = LocalizationService.Get("Settings_ChkFollowCursor", lang);
+        if (ChkGhostMode != null) ChkGhostMode.Content = LocalizationService.Get("Settings_ChkGhostMode", lang);
+
+        if (TxtCard5Title != null) TxtCard5Title.Text = LocalizationService.Get("Settings_CardWellness", lang);
+        if (ChkSoundEnabled != null) ChkSoundEnabled.Content = LocalizationService.Get("Settings_ChkSound", lang);
+        if (ChkScreenBreak != null) ChkScreenBreak.Content = LocalizationService.Get("Settings_ChkScreenBreak", lang);
+        if (ChkHydration != null) ChkHydration.Content = LocalizationService.Get("Settings_ChkHydration", lang);
+        if (BtnDailyReport != null) BtnDailyReport.Content = LocalizationService.Get("Settings_BtnDailyReport", lang);
+        if (BtnTestSound != null) BtnTestSound.Content = LocalizationService.Get("Settings_BtnTestSound", lang);
+
+        if (TxtCard6Title != null) TxtCard6Title.Text = LocalizationService.Get("Settings_CardSystem", lang);
+        if (TxtLabelLanguage != null) TxtLabelLanguage.Text = LocalizationService.Get("Settings_LabelLanguage", lang);
+        if (ChkStartWithWindows != null) ChkStartWithWindows.Content = LocalizationService.Get("Settings_ChkStartup", lang);
+
+        if (BtnFeedTreat != null) BtnFeedTreat.Content = LocalizationService.Get("Settings_BtnFeedTreat", lang);
+        if (BtnCancel != null) BtnCancel.Content = LocalizationService.Get("Settings_BtnCancel", lang);
+        if (BtnSave != null) BtnSave.Content = LocalizationService.Get("Settings_BtnSave", lang);
     }
 
     private void SliderScale_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -203,10 +288,10 @@ public partial class SettingsWindow : Window
         _current.Language = CmbLanguage.SelectedIndex switch
         {
             1 => "Bengali",
-            2 => "English",
-            3 => "Hindi",
-            4 => "Spanish",
-            _ => "Bilingual"
+            2 => "Hindi",
+            3 => "Spanish",
+            4 => "Bilingual",
+            _ => "English"
         };
 
         _settingsService.SaveSettings(_current);

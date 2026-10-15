@@ -1,4 +1,5 @@
 using System;
+using Parot.Models;
 using Parot.Services;
 using Xunit;
 
@@ -92,5 +93,56 @@ public class AutoStartupAndLocalizationTests
         SoundService.MasterMute = false;
         Assert.False(SoundService.MasterMute);
         Assert.True(soundService.Enabled);
+    }
+
+    [Fact]
+    public void Localization_Get_AllMenuItems_ReturnValidStrings()
+    {
+        string[] menuKeys =
+        [
+            "FeedingMenu", "BirdSpeciesMenu", "AccessoriesMenu", "MiniGamesMenu", "AvianBehaviorsMenu",
+            "PerchActiveWindow", "PerchDesktop", "AudioMenu", "LanguageMenu",
+            "MenuPomodoro_Start", "MenuPomodoro_Stop", "SettingsMenu", "ExitMenu",
+            "SleepWake_Sleep", "SleepWake_Wake", "Birdcage_PutIn", "Birdcage_Release"
+        ];
+
+        foreach (var lang in LocalizationService.SupportedLanguages)
+        {
+            foreach (var key in menuKeys)
+            {
+                var val = LocalizationService.Get(key, lang);
+                Assert.False(string.IsNullOrWhiteSpace(val), $"Key '{key}' is missing or empty in language '{lang}'");
+                Assert.NotEqual(key, val);
+            }
+        }
+    }
+
+    [Fact]
+    public void Localization_Get_SettingsWindowKeys_ReturnValidStrings()
+    {
+        string[] settingsKeys =
+        [
+            "Settings_Title", "Settings_Subtitle", "Settings_CardSkins", "Settings_CardPomodoro",
+            "Settings_CardAI", "Settings_CardBehavior", "Settings_CardWellness",
+            "Settings_CardSystem", "Settings_BtnSave", "Settings_BtnCancel"
+        ];
+
+        foreach (var lang in LocalizationService.SupportedLanguages)
+        {
+            foreach (var key in settingsKeys)
+            {
+                var val = LocalizationService.Get(key, lang);
+                Assert.False(string.IsNullOrWhiteSpace(val), $"Settings key '{key}' is missing or empty in language '{lang}'");
+                Assert.NotEqual(key, val);
+            }
+        }
+    }
+
+    [Fact]
+    public void AppSettings_GetDefaultLanguage_ReturnsValidLanguage()
+    {
+        var defaultLang = AppSettings.GetDefaultLanguage();
+        Assert.False(string.IsNullOrWhiteSpace(defaultLang));
+        Assert.Contains(defaultLang, LocalizationService.SupportedLanguages);
     }
 }

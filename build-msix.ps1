@@ -1,6 +1,6 @@
 # Parot - Microsoft Store MSIX Packaging Script
 param(
-    [string]$Version = "1.0.0.0",
+    [string]$Version = "1.0.2.0",
     [switch]$CreateTestCert = $false
 )
 
@@ -17,14 +17,14 @@ Write-Host " Identity: ITAmadersomajInc.Parot" -ForegroundColor Cyan
 Write-Host " Store ID: 9NDQ2S4Q0RJT" -ForegroundColor Cyan
 Write-Host "=========================================" -ForegroundColor Cyan
 
-# 1. Clean and Publish Release Build
+# 1. Clean and Publish Release Build (Self-Contained win-x64)
 if (Test-Path $distDir) {
     Remove-Item $distDir -Recurse -Force
 }
 New-Item -ItemType Directory -Path $distDir -Force | Out-Null
 
-Write-Host "Publishing Release binaries..." -ForegroundColor Yellow
-& dotnet publish (Join-Path $projectRoot "Parot.csproj") -c Release -o $distDir
+Write-Host "Publishing Self-Contained Release binaries (win-x64)..." -ForegroundColor Yellow
+& dotnet publish (Join-Path $projectRoot "Parot.csproj") -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o $distDir
 
 # 2. Copy Package Manifest and set Version
 Write-Host "Configuring Package.appxmanifest (Version: $Version)..." -ForegroundColor Yellow

@@ -12,9 +12,9 @@
     <Authors>IT Amadersomaj Inc</Authors>
     <Product>Parot</Product>
     <PackageId>Parot</PackageId>
-    <Version>1.0.1.0</Version>
-    <AssemblyVersion>1.0.1.0</AssemblyVersion>
-    <FileVersion>1.0.1.0</FileVersion>
+    <Version>1.0.2.0</Version>
+    <AssemblyVersion>1.0.2.0</AssemblyVersion>
+    <FileVersion>1.0.2.0</FileVersion>
     <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
     <RepositoryUrl>https://github.com/mohammad-sheikh-shahinur-rahman/Parot-The-Ultimate-Lifelike-Desktop-Bird-Companion-for-Windows</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

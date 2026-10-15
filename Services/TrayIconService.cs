@@ -34,6 +34,14 @@ public class TrayIconService : IDisposable
     private readonly ToolStripMenuItem _itemFollowCursor;
     private readonly ToolStripMenuItem _itemPerchMode;
     private readonly ToolStripMenuItem _itemGhost;
+    private readonly ToolStripMenuItem _flyItem;
+    private readonly ToolStripMenuItem _askItem;
+    private readonly ToolStripMenuItem _reportItem;
+    private readonly ToolStripMenuItem _breakItem;
+    private readonly ToolStripMenuItem _waterItem;
+    private readonly ToolStripMenuItem _feedItem;
+    private readonly ToolStripMenuItem _settingsItem;
+    private readonly ToolStripMenuItem _exitItem;
 
     public TrayIconService()
     {
@@ -43,44 +51,44 @@ public class TrayIconService : IDisposable
         _itemSleepWake = new ToolStripMenuItem("💤 Go to Sleep", null, (s, e) => SleepWakeToggled?.Invoke());
         _itemSoundToggle = new ToolStripMenuItem("🔊 Sound: ON", null, (s, e) => SoundToggled?.Invoke());
 
-        var flyItem = new ToolStripMenuItem("🚀 Take Flight", null, (s, e) => FlyRequested?.Invoke());
+        _flyItem = new ToolStripMenuItem("🚀 Take Flight", null, (s, e) => FlyRequested?.Invoke());
         _itemFollowCursor = new ToolStripMenuItem("🎯 Follow Cursor", null, (s, e) => FollowCursorToggled?.Invoke());
 
         _itemPomodoro = new ToolStripMenuItem("🍅 Start Pomodoro Focus (25m)", null, (s, e) => PomodoroToggled?.Invoke());
-        var askItem = new ToolStripMenuItem("✨ Ask Parot (AI Chat)", null, (s, e) => AskParotRequested?.Invoke());
-        var reportItem = new ToolStripMenuItem("📊 Daily Wellness Report", null, (s, e) => DailyReportRequested?.Invoke());
+        _askItem = new ToolStripMenuItem("✨ Ask Parot (AI Chat)", null, (s, e) => AskParotRequested?.Invoke());
+        _reportItem = new ToolStripMenuItem("📊 Daily Wellness Report", null, (s, e) => DailyReportRequested?.Invoke());
 
-        var breakItem = new ToolStripMenuItem("👁️ Rest Eyes Now (20-20-20)", null, (s, e) => TakeBreakRequested?.Invoke());
-        var waterItem = new ToolStripMenuItem("💧 Drink Water Now", null, (s, e) => DrinkWaterRequested?.Invoke());
-        var feedItem = new ToolStripMenuItem("🌶️ Feed Chili Treat", null, (s, e) => FeedTreatRequested?.Invoke());
+        _breakItem = new ToolStripMenuItem("👁️ Rest Eyes Now (20-20-20)", null, (s, e) => TakeBreakRequested?.Invoke());
+        _waterItem = new ToolStripMenuItem("💧 Drink Water Now", null, (s, e) => DrinkWaterRequested?.Invoke());
+        _feedItem = new ToolStripMenuItem("🌶️ Feed Chili Treat", null, (s, e) => FeedTreatRequested?.Invoke());
 
         _itemPerchMode = new ToolStripMenuItem("🪟 Perch on Active Window", null, (s, e) => PerchModeToggled?.Invoke());
         _itemGhost = new ToolStripMenuItem("👻 Ghost Mode (Click-Through)", null, (s, e) => GhostModeToggled?.Invoke());
 
-        var settingsItem = new ToolStripMenuItem("⚙️ Settings...", null, (s, e) => SettingsRequested?.Invoke());
-        var exitItem = new ToolStripMenuItem("❌ Exit Parot", null, (s, e) => ExitRequested?.Invoke());
+        _settingsItem = new ToolStripMenuItem("⚙️ Settings...", null, (s, e) => SettingsRequested?.Invoke());
+        _exitItem = new ToolStripMenuItem("❌ Exit Parot", null, (s, e) => ExitRequested?.Invoke());
 
         _contextMenu.Items.AddRange(
         [
             _itemShowHide,
             _itemSleepWake,
             _itemSoundToggle,
-            flyItem,
+            _flyItem,
             _itemFollowCursor,
             new ToolStripSeparator(),
             _itemPomodoro,
-            askItem,
-            reportItem,
+            _askItem,
+            _reportItem,
             new ToolStripSeparator(),
-            breakItem,
-            waterItem,
-            feedItem,
+            _breakItem,
+            _waterItem,
+            _feedItem,
             new ToolStripSeparator(),
             _itemPerchMode,
             _itemGhost,
-            settingsItem,
+            _settingsItem,
             new ToolStripSeparator(),
-            exitItem
+            _exitItem
         ]);
 
         _notifyIcon = new NotifyIcon
@@ -122,6 +130,21 @@ public class TrayIconService : IDisposable
     public void UpdateGhostState(bool isGhost)
     {
         _itemGhost.Checked = isGhost;
+    }
+
+    public void UpdateLanguage(string lang)
+    {
+        _flyItem.Text = LocalizationService.Get("TakeFlight", lang);
+        _itemFollowCursor.Text = LocalizationService.Get("FollowCursor", lang);
+        _askItem.Text = LocalizationService.Get("MenuAskParot", lang);
+        _reportItem.Text = LocalizationService.Get("MenuDailyReport", lang);
+        _breakItem.Text = LocalizationService.Get("MenuEyeBreak", lang);
+        _waterItem.Text = LocalizationService.Get("MenuHydrate", lang);
+        _feedItem.Text = LocalizationService.Get("MenuThrowChili", lang);
+        _itemPerchMode.Text = LocalizationService.Get("PerchActiveWindow", lang);
+        _itemGhost.Text = LocalizationService.Get("GhostModeMenu", lang);
+        _settingsItem.Text = LocalizationService.Get("SettingsMenu", lang);
+        _exitItem.Text = LocalizationService.Get("ExitMenu", lang);
     }
 
     public void ShowNotification(string title, string text, ToolTipIcon icon = ToolTipIcon.Info)

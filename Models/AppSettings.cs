@@ -22,7 +22,31 @@ public class AppSettings
     public bool IdleChirping { get; set; } = true;
     public bool DanceToMusic { get; set; } = true;
     public bool NightModeAuto { get; set; } = true;
-    public string Language { get; set; } = "Bilingual"; // "Bilingual", "Bengali", "English"
+    public string Language { get; set; } = GetDefaultLanguage();
+
+    public static string GetDefaultLanguage()
+    {
+        try
+        {
+            var culture = System.Globalization.CultureInfo.CurrentUICulture;
+            if (culture.TwoLetterISOLanguageName.Equals("bn", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Bengali";
+            }
+            if (culture.TwoLetterISOLanguageName.Equals("es", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Spanish";
+            }
+            if (culture.TwoLetterISOLanguageName.Equals("hi", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Hindi";
+            }
+        }
+        catch
+        {
+        }
+        return "English";
+    }
 
     // Sound & Voice
     public bool SoundEnabled { get; set; } = true;

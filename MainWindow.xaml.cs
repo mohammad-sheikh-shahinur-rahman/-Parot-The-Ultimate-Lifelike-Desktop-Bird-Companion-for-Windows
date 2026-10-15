@@ -1013,28 +1013,7 @@ public partial class MainWindow : Window
 
     private void Pet_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
     {
-        string lang = _settingsService.CurrentSettings.Language;
-        bool isSleeping = (Pet.CurrentState == PetState.Sleeping || Pet.CurrentState == PetState.NightSleeping);
-        MenuSleepWake.Header = isSleeping
-            ? LocalizationService.Get("SleepWake_Wake", lang)
-            : LocalizationService.Get("SleepWake_Sleep", lang);
-
-        MenuPomodoro.Header = _pomodoroService.CurrentPhase == PomodoroPhase.Stopped
-            ? "🍅 পোমোডোরো শুরু করুন (Start Focus)"
-            : "🍅 পোমোডোরো বন্ধ করুন (Stop Focus)";
-
-        MenuPerchMode.Header = _settingsService.CurrentSettings.PerchMode == "ActiveWindow"
-            ? "🖥️ ডেস্কটপে ফিরে এসো (Perch on Desktop)"
-            : LocalizationService.Get("PerchActiveWindow", lang);
-
-        UpdateSoundMenuItems(_soundService.Enabled);
-        UpdateBirdcageMenuItem(_settingsService.CurrentSettings.BirdcageMode);
-
-        if (MenuAutoStartup != null)
-        {
-            MenuAutoStartup.IsChecked = AutoStartupService.IsAutoStartupEnabled();
-        }
-
+        ApplyLanguage(_settingsService.CurrentSettings.Language);
         PetContextMenu.IsOpen = true;
     }
 
@@ -1353,6 +1332,7 @@ public partial class MainWindow : Window
         settingsWin.FeedTreatRequested += FeedChiliTreat;
         settingsWin.OpenDailyReportRequested += OpenDailyReportWindow;
         settingsWin.ShowDialog();
+        ApplySettings(_settingsService.CurrentSettings);
     }
 
     private void OpenDailyReportWindow()
@@ -1820,8 +1800,8 @@ public partial class MainWindow : Window
         if (MenuSoundQuickToggle != null)
         {
             MenuSoundQuickToggle.Header = isEnabled
-                ? "🔊 সাউন্ড বন্ধ করো (Mute Sound)"
-                : "🔇 সাউন্ড চালু করো (Unmute Sound)";
+                ? LocalizationService.Get("SoundQuick_Mute", lang)
+                : LocalizationService.Get("SoundQuick_Unmute", lang);
         }
     }
 
@@ -1870,26 +1850,83 @@ public partial class MainWindow : Window
             MenuAutoStartup.IsChecked = AutoStartupService.IsAutoStartupEnabled();
         }
 
-        if (MenuLangBengali != null) MenuLangBengali.IsChecked = (lang == "Bengali");
         if (MenuLangEnglish != null) MenuLangEnglish.IsChecked = (lang == "English");
+        if (MenuLangBengali != null) MenuLangBengali.IsChecked = (lang == "Bengali");
         if (MenuLangHindi != null) MenuLangHindi.IsChecked = (lang == "Hindi");
         if (MenuLangSpanish != null) MenuLangSpanish.IsChecked = (lang == "Spanish");
         if (MenuLangBilingual != null) MenuLangBilingual.IsChecked = (lang == "Bilingual");
 
+        if (MenuMoodDisplay != null) MenuMoodDisplay.Header = _moodService.GetMoodTitle(lang);
+        if (MenuPomodoro != null) MenuPomodoro.Header = LocalizationService.Get(_pomodoroService.CurrentPhase == PomodoroPhase.Stopped ? "MenuPomodoro_Start" : "MenuPomodoro_Stop", lang);
+        if (MenuAskParot != null) MenuAskParot.Header = LocalizationService.Get("MenuAskParot", lang);
+        if (MenuDailyReport != null) MenuDailyReport.Header = LocalizationService.Get("MenuDailyReport", lang);
+
         if (MenuMiniGames != null) MenuMiniGames.Header = LocalizationService.Get("MiniGamesMenu", lang);
+        if (MenuLaserPointer != null) MenuLaserPointer.Header = LocalizationService.Get("MenuLaserPointer", lang);
+        if (MenuDesktopMirror != null) MenuDesktopMirror.Header = LocalizationService.Get("MenuDesktopMirror", lang);
+        if (MenuThrowChili != null) MenuThrowChili.Header = LocalizationService.Get("MenuThrowChili", lang);
+        if (MenuThrowPeanut != null) MenuThrowPeanut.Header = LocalizationService.Get("MenuThrowPeanut", lang);
+        if (MenuThrowSeed != null) MenuThrowSeed.Header = LocalizationService.Get("MenuThrowSeed", lang);
+        if (MenuPerchCursor != null) MenuPerchCursor.Header = LocalizationService.Get("MenuPerchCursor", lang);
+        if (MenuBallPush != null) MenuBallPush.Header = LocalizationService.Get("MenuBallPush", lang);
+        if (MenuPlayTag != null) MenuPlayTag.Header = LocalizationService.Get("MenuPlayTag", lang);
+
         if (MenuAvianBehaviors != null) MenuAvianBehaviors.Header = LocalizationService.Get("AvianBehaviorsMenu", lang);
+        if (MenuWalkTitlebar != null) MenuWalkTitlebar.Header = LocalizationService.Get("MenuWalkTitlebar", lang);
+        if (MenuFlapPerch != null) MenuFlapPerch.Header = LocalizationService.Get("MenuFlapPerch", lang);
+        if (MenuCuriousLook != null) MenuCuriousLook.Header = LocalizationService.Get("MenuCuriousLook", lang);
+        if (MenuPreen != null) MenuPreen.Header = LocalizationService.Get("MenuPreenFeathers", lang);
+        if (MenuStretch != null) MenuStretch.Header = LocalizationService.Get("MenuStretchWings", lang);
+        if (MenuFluff != null) MenuFluff.Header = LocalizationService.Get("MenuFluffFeathers", lang);
+        if (MenuYawn != null) MenuYawn.Header = LocalizationService.Get("MenuLazyYawn", lang);
+        if (MenuDizzy != null) MenuDizzy.Header = LocalizationService.Get("MenuDizzyTrick", lang);
+
         if (MenuBirdSpecies != null) MenuBirdSpecies.Header = LocalizationService.Get("BirdSpeciesMenu", lang);
+        if (MenuSkinScarletMacaw != null) MenuSkinScarletMacaw.Header = LocalizationService.Get("MenuSkin_Scarlet", lang);
+        if (MenuSkinGreenParakeet != null) MenuSkinGreenParakeet.Header = LocalizationService.Get("MenuSkin_Parakeet", lang);
+        if (MenuSkinBlueMacaw != null) MenuSkinBlueMacaw.Header = LocalizationService.Get("MenuSkin_BlueMacaw", lang);
+        if (MenuSkinCockatiel != null) MenuSkinCockatiel.Header = LocalizationService.Get("MenuSkin_Cockatiel", lang);
+        if (MenuSkinCockatoo != null) MenuSkinCockatoo.Header = LocalizationService.Get("MenuSkin_Cockatoo", lang);
+
         if (MenuAccessories != null) MenuAccessories.Header = LocalizationService.Get("AccessoriesMenu", lang);
+        if (MenuAccessorySunglasses != null) MenuAccessorySunglasses.Header = LocalizationService.Get("MenuAcc_Sunglasses", lang);
+        if (MenuAccessoryGlasses != null) MenuAccessoryGlasses.Header = LocalizationService.Get("MenuAcc_Glasses", lang);
+        if (MenuAccessoryScarf != null) MenuAccessoryScarf.Header = LocalizationService.Get("MenuAcc_Scarf", lang);
+        if (MenuAccessoryTopHat != null) MenuAccessoryTopHat.Header = LocalizationService.Get("MenuAcc_TopHat", lang);
+        if (MenuAccessoryPartyHat != null) MenuAccessoryPartyHat.Header = LocalizationService.Get("MenuAcc_PartyHat", lang);
+        if (MenuAccessoryUmbrella != null) MenuAccessoryUmbrella.Header = LocalizationService.Get("MenuAcc_Umbrella", lang);
+        if (MenuAccessoryNone != null) MenuAccessoryNone.Header = LocalizationService.Get("MenuAcc_None", lang);
+
         if (MenuVoiceAudio != null) MenuVoiceAudio.Header = LocalizationService.Get("AudioMenu", lang);
+        if (MenuVoiceMimic != null) MenuVoiceMimic.Header = LocalizationService.Get("MenuVoiceMimic", lang);
+        if (MenuVoiceCommands != null) MenuVoiceCommands.Header = LocalizationService.Get("MenuVoiceCommands", lang);
+        if (MenuSquawk != null) MenuSquawk.Header = LocalizationService.Get("MenuSquawk", lang);
+
         if (MenuHungerFeeding != null) MenuHungerFeeding.Header = LocalizationService.Get("FeedingMenu", lang);
+        if (MenuHungerDisplay != null) MenuHungerDisplay.Header = string.Format(LocalizationService.Get("MenuHunger_Level", lang), $"{_settingsService.CurrentSettings.HungerLevel:F0}");
+        if (MenuHuntPrey != null) MenuHuntPrey.Header = LocalizationService.Get("MenuHunt_Bug", lang);
+        if (MenuHuntGrasshopper != null) MenuHuntGrasshopper.Header = LocalizationService.Get("MenuHunt_Grasshopper", lang);
+        if (MenuFeedChili != null) MenuFeedChili.Header = LocalizationService.Get("MenuFeed_Chili", lang);
+        if (MenuFeedSeeds != null) MenuFeedSeeds.Header = LocalizationService.Get("MenuFeed_Seeds", lang);
+
+        if (MenuWeather != null) MenuWeather.Header = LocalizationService.Get("MenuWeather", lang);
+        if (MenuCompanionBird != null) MenuCompanionBird.Header = LocalizationService.Get("MenuCompanionBird", lang);
+
         if (MenuFlyAround != null) MenuFlyAround.Header = LocalizationService.Get("TakeFlight", lang);
         if (MenuFollowCursor != null) MenuFollowCursor.Header = LocalizationService.Get("FollowCursor", lang);
-        if (MenuPerchMode != null) MenuPerchMode.Header = LocalizationService.Get("PerchActiveWindow", lang);
+        if (MenuPerchMode != null) MenuPerchMode.Header = LocalizationService.Get(_settingsService.CurrentSettings.PerchMode == "ActiveWindow" ? "PerchDesktop" : "PerchActiveWindow", lang);
+        bool isSleeping = (Pet.CurrentState == PetState.Sleeping || Pet.CurrentState == PetState.NightSleeping);
+        if (MenuSleepWake != null) MenuSleepWake.Header = LocalizationService.Get(isSleeping ? "SleepWake_Wake" : "SleepWake_Sleep", lang);
+        if (MenuEyeBreak != null) MenuEyeBreak.Header = LocalizationService.Get("MenuEyeBreak", lang);
+        if (MenuHydrate != null) MenuHydrate.Header = LocalizationService.Get("MenuHydrate", lang);
+        if (MenuGhostMode != null) MenuGhostMode.Header = LocalizationService.Get("GhostModeMenu", lang);
         if (MenuSettings != null) MenuSettings.Header = LocalizationService.Get("SettingsMenu", lang);
         if (MenuExit != null) MenuExit.Header = LocalizationService.Get("ExitMenu", lang);
 
         UpdateSoundMenuItems(_settingsService.CurrentSettings.SoundEnabled);
         UpdateBirdcageMenuItem(_settingsService.CurrentSettings.BirdcageMode);
+
+        _trayIconService.UpdateLanguage(lang);
     }
 
     // Dynamic Features: Window Walking, Edge Peeking & Avian Behaviors

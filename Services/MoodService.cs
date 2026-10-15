@@ -98,15 +98,16 @@ public class MoodService
         };
     }
 
-    public string GetMoodTitle()
+    public string GetMoodTitle(string? language = null)
     {
-        return CurrentMood switch
+        string key = CurrentMood switch
         {
-            PetMood.Cheerful => "🌟 প্রফুল্ল (Cheerful)",
-            PetMood.Curious => "🧐 কৌতূহলী (Curious)",
-            PetMood.Needy => "🥺 আদরপ্রত্যাশী (Needy)",
-            PetMood.Sleepy => "💤 অলস/ঘুমন্ত (Sleepy)",
-            _ => "🦜 স্বাভাবিক"
+            PetMood.Cheerful => "MenuMood_Cheerful",
+            PetMood.Curious => "MenuMood_Curious",
+            PetMood.Needy => "MenuMood_Needy",
+            PetMood.Sleepy => "MenuMood_Sleepy",
+            _ => "MenuMood_Normal"
         };
+        return LocalizationService.Get(key, language);
     }
 }

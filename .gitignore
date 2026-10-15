@@ -18,6 +18,7 @@ obj/
 # Build & Package Output
 dist/
 dist-msix/
+dist-exe/
 nupkg/
 *.zip
 *.msix
